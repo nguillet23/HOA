@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Processor — HomeOwners Advantage</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:       #3a9bbf;
+    --teal-dark:  #2d83a3;
+    --teal-light: #e8f5fb;
+    --teal-mid:   #c2e3f0;
+    --navy:       #1e3a5f;
+    --navy2:      #162d4a;
+    --steel:      #6b7f93;
+    --steel-light:#b0bec8;
+    --bg:         #f0f4f7;
+    --surface:    #f7f9fb;
+    --white:      #ffffff;
+    --border:     #cdd8e3;
+    --border2:    #dde6ed;
+    --text:       #1e3a5f;
+    --muted:      #4e6278;
+    --light:      #8fa3b3;
+    --success:    #2e7d5e;
+    --success-bg: #edf7f3;
+    --success-bd: #b8ddd0;
+    --danger:     #c0392b;
+    --danger-bg:  #fdf2f1;
+    --danger-bd:  #e8bbb8;
+    --warn:       #7a5c14;
+    --warn-bg:    #fdf8ee;
+    --warn-bd:    #e8d8a0;
+  }
+
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+  body {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--navy);
+    padding: 0 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 10px rgba(30,58,95,.3);
+    border-bottom: 3px solid var(--teal);
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 14px; }
+
+  .topbar-logo {
+    width: 44px; height: 44px;
+    background: var(--teal);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; flex-shrink: 0;
+  }
+  .topbar-logo svg { width: 26px; height: 26px; position: relative; z-index: 1; }
+
+  .topbar-name { display: flex; flex-direction: column; line-height: 1.15; }
+  .topbar-name .line1 {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 12px; font-weight: 600;
+    color: rgba(255,255,255,.75);
+    letter-spacing: .06em; text-transform: uppercase;
+  }
+  .topbar-name .line2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px; font-weight: 800;
+    color: #ffffff;
+    letter-spacing: .12em; text-transform: uppercase;
+  }
+
+  .topbar-divider {
+    width: 1px; height: 28px;
+    background: rgba(255,255,255,.15);
+    margin: 0 20px;
+  }
+
+  .topbar-right {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 11.5px; font-weight: 600;
+    color: rgba(255,255,255,.5);
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+
+  /* ── PAGE ── */
+  .page { max-width: 960px; margin: 0 auto; padding: 40px 32px 80px; }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding-bottom: 20px; margin-bottom: 36px;
+    border-bottom: 3px solid var(--navy);
+    animation: fadeIn .4s ease both;
+  }
+  .page-header-left h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 26px; font-weight: 700;
+    color: var(--navy); line-height: 1.2;
+    letter-spacing: -.01em;
+  }
+  .page-header-left h1 span { color: var(--teal); }
+  .page-header-left .tagline {
+    font-size: 13.5px; font-weight: 500;
+    color: var(--muted); margin-top: 6px;
+  }
+  .step-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--navy); color: white;
+    padding: 7px 16px; border-radius: 999px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(30,58,95,.2);
+  }
+  .step-pill::before {
+    content: '';
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--teal);
+  }
+
+  /* ── SESSION RESTORE BANNER ── */
+  .restore-banner {
+    display: none;
+    align-items: center; gap: 12px;
+    background: var(--warn-bg);
+    border: 1.5px solid var(--warn-bd);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    animation: fadeUp .4s ease both;
+  }
+  .restore-banner.show { display: flex; }
+  .restore-banner-icon { font-size: 20px; flex-shrink: 0; }
+  .restore-banner-text { flex: 1; }
+  .restore-banner-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--warn); margin-bottom: 2px;
+  }
+  .restore-banner-detail {
+    font-size: 12px; font-weight: 500; color: var(--muted);
+  }
+  .restore-banner-detail span { color: var(--navy); font-weight: 700; }
+  .restore-actions { display: flex; gap: 10px; flex-shrink: 0; }
+  .restore-btn {
+    padding: 7px 14px; border-radius: 5px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    border: none; cursor: pointer; transition: background .15s;
+  }
+  .restore-btn-yes {
+    background: var(--teal); color: white;
+    box-shadow: 0 2px 6px rgba(58,155,191,.3);
+  }
+  .restore-btn-yes:hover { background: var(--teal-dark); }
+  .restore-btn-no {
+    background: transparent; color: var(--muted);
+    border: 1.5px solid var(--border) !important;
+  }
+  .restore-btn-no:hover { background: var(--bg); color: var(--navy); }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(30,58,95,.07);
+    overflow: hidden;
+    animation: fadeUp .4s ease both;
+  }
+  .card:nth-child(3){ animation-delay:.07s }
+
+  .card-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border2);
+    background: var(--surface);
+    border-top: 3px solid var(--teal);
+  }
+  .card-step-num {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--teal); color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(58,155,191,.3);
+  }
+  .card-header-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px; font-weight: 700;
+    color: var(--navy); letter-spacing: .01em;
+  }
+  .card-header-sub {
+    margin-left: auto;
+    font-size: 12px; font-weight: 500;
+    color: var(--steel-light);
+  }
+  .card-body { padding: 26px 24px; }
+
+  /* ── FIELDS ── */
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media(max-width:580px){ .field-grid { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field.full { grid-column: 1 / -1; }
+
+  label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--navy);
+  }
+  .req { color: var(--teal); margin-left: 2px; }
+
+  input[type=text], input[type=password], select {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 5px;
+    padding: 9px 12px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px; font-weight: 400;
+    color: var(--text);
+    outline: none; width: 100%;
+    transition: border-color .15s, box-shadow .15s;
+    -webkit-appearance: none; appearance: none;
+  }
+  input:focus, select:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(58,155,191,.15);
+  }
+  input::placeholder { color: var(--light); }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236b7f93' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 30px; cursor: pointer;
+  }
+  select option { color: var(--text); background: white; }
+
+
+  /* ── VALIDATION ERROR STATE ── */
+  .field-error input,
+  .field-error select {
+    border-color: var(--danger) !important;
+    box-shadow: 0 0 0 3px rgba(192,57,43,.12) !important;
+    background: var(--danger-bg) !important;
+  }
+
+  .field-error .folder-picker {
+    border-color: var(--danger) !important;
+    box-shadow: 0 0 0 3px rgba(192,57,43,.12) !important;
+    background: var(--danger-bg) !important;
+  }
+  .field-error-msg {
+    display: none;
+    font-size: 11px; font-weight: 600;
+    color: var(--danger);
+    margin-top: -2px;
+  }
+  .field-error .field-error-msg { display: block; }
+
+  .file-row.file-error {
+    border-color: var(--danger) !important;
+    background: var(--danger-bg) !important;
+    box-shadow: 0 0 0 3px rgba(192,57,43,.10) !important;
+  }
+  .file-row.file-error .file-title { color: var(--danger); }
+  .file-row.file-error .file-hint { color: var(--danger); }
+
+  /* ── MAIN VALIDATION BANNER ── */
+  .validation-banner {
+    display: none;
+    border: 1.5px solid var(--danger-bd);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .validation-banner.show { display: block; }
+
+  .validation-banner-header {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--danger-bg);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--danger-bd);
+  }
+  .validation-banner-header svg { flex-shrink:0; width:16px; height:16px; fill:var(--danger); }
+  .validation-banner-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12.5px; font-weight: 700;
+    color: var(--danger);
+  }
+
+  .validation-error-list {
+    background: white;
+    padding: 10px 16px 12px;
+    list-style: none;
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .validation-error-list li {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 12.5px; font-weight: 500; color: var(--muted);
+  }
+  .validation-error-list li::before {
+    content: '→';
+    color: var(--danger); font-weight: 700; flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .validation-error-list li strong { color: var(--navy); font-weight: 700; }
+
+  /* ── FOLDER PICKER ── */
+  .folder-picker {
+    display: flex; align-items: stretch;
+    border: 1.5px solid var(--border);
+    border-radius: 5px; overflow: hidden;
+    background: var(--white);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .folder-picker:hover { border-color: var(--teal); }
+  .folder-picker.has-path {
+    border-color: var(--success-bd);
+    background: var(--success-bg);
+  }
+  .folder-picker.has-path:hover { border-color: var(--success); box-shadow: 0 0 0 3px rgba(46,125,94,.08); }
+
+  .folder-display {
+    flex: 1; display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; min-width: 0;
+  }
+  .folder-display-icon { font-size: 18px; flex-shrink: 0; }
+  .folder-display-text { min-width: 0; }
+  .folder-display-name {
+    font-size: 14px; font-weight: 500;
+    color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .folder-display-name.placeholder { color: var(--light); font-weight: 400; }
+  .folder-display-full {
+    font-size: 11px; color: var(--muted); margin-top: 1px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .folder-browse-btn {
+    flex-shrink: 0;
+    padding: 0 18px;
+    background: var(--teal); color: white;
+    border: none; border-left: 1.5px solid var(--teal-dark);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11.5px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: background .15s;
+    min-height: 42px;
+  }
+  .folder-browse-btn:hover { background: var(--teal-dark); }
+  .folder-browse-btn svg { width: 13px; height: 13px; fill: rgba(255,255,255,.85); }
+
+  /* ── FILE TILES ── */
+  .files-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media(max-width:600px){ .files-grid { grid-template-columns: 1fr; } }
+
+  .file-row {
+    position: relative; cursor: pointer;
+    border: 1.5px solid var(--border);
+    border-radius: 6px; padding: 13px 14px;
+    background: var(--surface);
+    transition: border-color .15s, background .15s, box-shadow .15s;
+    display: flex; align-items: center; gap: 12px;
+    overflow: hidden;
+  }
+  .file-row:hover {
+    border-color: var(--teal);
+    background: var(--teal-light);
+    box-shadow: 0 2px 8px rgba(58,155,191,.12);
+  }
+  .file-row.done { border-color: var(--success-bd); background: var(--success-bg); }
+  .file-row.done:hover { border-color: var(--success); box-shadow: 0 2px 8px rgba(46,125,94,.1); }
+
+  .file-row.macro-row {
+    grid-column: 1 / -1;
+    border-color: var(--teal-mid);
+    background: var(--teal-light);
+  }
+  .file-row.macro-row:hover { border-color: var(--teal); background: #d6edf6; }
+  .file-row.macro-row.done { border-color: var(--success-bd); background: var(--success-bg); }
+
+  .file-row input[type=file] {
+    position: absolute; inset: 0; opacity: 0;
+    cursor: pointer; width: 100%; height: 100%;
+  }
+
+  .file-icon-wrap {
+    width: 38px; height: 38px; border-radius: 6px;
+    background: var(--teal-light); border: 1.5px solid var(--teal-mid);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 16px;
+    pointer-events: none; transition: background .15s;
+  }
+  .done .file-icon-wrap { background: var(--success-bd); border-color: var(--success-bd); }
+  .macro-row .file-icon-wrap { background: rgba(58,155,191,.2); border-color: rgba(58,155,191,.4); }
+  .file-error .file-icon-wrap { background: var(--danger-bg); border-color: var(--danger-bd); }
+
+  .file-text { flex: 1; min-width: 0; pointer-events: none; }
+  .file-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--navy); margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .file-desc { font-size: 11.5px; font-weight: 500; color: var(--steel); }
+  .file-selected {
+    font-size: 11px; color: var(--success); font-weight: 600;
+    margin-top: 3px; white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; display: none;
+  }
+  .done .file-selected { display: block; }
+  .file-hint { font-size: 11px; font-weight: 600; color: var(--teal); margin-top: 3px; }
+  .done .file-hint { display: none; }
+
+  .file-badge { flex-shrink: 0; pointer-events: none; }
+  .file-badge-inner {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--success);
+    display: none; align-items: center; justify-content: center;
+    color: white; font-size: 10px; font-weight: 700;
+  }
+  .done .file-badge-inner { display: flex; }
+
+  /* ── PROGRESS BAR ── */
+  .prog-wrap { display: none; margin-bottom: 16px; }
+  .prog-track {
+    height: 5px;
+    background: rgba(255,255,255,.12);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .prog-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), #6dcbe8);
+    border-radius: 999px;
+    width: 0%;
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+  }
+  .prog-label {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: .07em; text-transform: uppercase;
+  }
+  .prog-stage { color: rgba(255,255,255,.6); }
+  .prog-pct   { color: rgba(255,255,255,.4); }
+
+  /* ── RUN CARD ── */
+  .run-card {
+    background: var(--navy);
+    border: none; border-radius: 8px;
+    padding: 26px 24px; margin-bottom: 24px;
+    animation: fadeUp .4s .14s ease both;
+    border-top: 3px solid var(--teal);
+    box-shadow: 0 4px 16px rgba(30,58,95,.18);
+  }
+
+  .run-btn {
+    width: 100%; padding: 14px 24px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px; font-weight: 800;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: white; background: var(--teal);
+    border: none; border-radius: 5px; cursor: pointer;
+    transition: background .15s, transform .1s, box-shadow .15s;
+    box-shadow: 0 3px 12px rgba(58,155,191,.45);
+  }
+  .run-btn:hover:not(:disabled) {
+    background: var(--teal-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(58,155,191,.5);
+  }
+  .run-btn:active:not(:disabled) { transform: translateY(0); }
+  .run-btn:disabled { opacity: .4; cursor: not-allowed; }
+  .run-note {
+    margin-top: 12px; font-size: 12.5px; font-weight: 500;
+    color: rgba(255,255,255,.4); text-align: center;
+  }
+
+  /* ── LOG ── */
+  .log-wrap {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden; display: none;
+    margin-bottom: 20px; box-shadow: 0 2px 6px rgba(30,58,95,.06);
+  }
+  .log-wrap.show { display: block; }
+  .log-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; border-bottom: 1px solid var(--border2);
+    background: var(--surface);
+  }
+  .log-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--steel);
+  }
+  .log-clear {
+    font-size: 12px; color: var(--muted); background: none;
+    border: none; cursor: pointer; font-family: inherit; font-weight: 600;
+  }
+  .log-clear:hover { color: var(--navy); }
+  .log-body {
+    padding: 14px 16px; max-height: 220px; overflow-y: auto;
+    font-size: 12.5px; line-height: 1.8;
+    font-family: 'Courier New', monospace;
+  }
+  .ll { display: flex; gap: 10px; }
+  .ll .ts { color: var(--light); flex-shrink: 0; }
+  .ll.info .m  { color: var(--text); }
+  .ll.success .m { color: var(--success); font-weight: 600; }
+  .ll.error .m { color: var(--danger); white-space: pre-wrap; }
+  .ll.warn .m  { color: var(--warn); }
+
+  /* ── RESULT ── */
+  .result-block {
+    border: 1.5px solid var(--success-bd); background: var(--success-bg);
+    border-radius: 8px; padding: 20px 24px; display: none;
+    box-shadow: 0 2px 6px rgba(30,58,95,.06);
+  }
+  .result-block.show { display: block; }
+  .result-block.fail { border-color: var(--danger-bd); background: var(--danger-bg); }
+  .result-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px; font-weight: 700;
+    color: var(--success); margin-bottom: 10px;
+  }
+  .result-block.fail .result-title { color: var(--danger); }
+  .result-folder {
+    font-size: 13px; font-weight: 500; color: var(--muted);
+    margin-bottom: 14px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--success-bd);
+  }
+  .result-block.fail .result-folder { border-color: var(--danger-bd); }
+  .result-folder span { color: var(--navy); font-weight: 700; }
+  .result-files { display: flex; flex-direction: column; gap: 7px; }
+  .rf { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--muted); }
+  .rf .arrow { color: var(--teal); font-weight: 700; }
+  .rf .dst { color: var(--navy); font-weight: 600; }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    margin-top: 48px; padding-top: 20px;
+    border-top: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+  }
+  .footer-logo {
+    width: 22px; height: 22px; background: var(--teal);
+    border-radius: 3px; display: flex; align-items: center; justify-content: center;
+  }
+  .footer-logo svg { width: 13px; height: 13px; fill: white; }
+  .footer-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: var(--steel-light); letter-spacing: .08em; text-transform: uppercase;
+  }
+  .footer-text span { color: var(--teal); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:999px; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .spinner {
+    display: inline-block; width: 13px; height: 13px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.25); border-top-color: white;
+    animation: spin .65s linear infinite;
+    vertical-align: middle; margin-right: 7px;
+  }
+
+  /* ── Stop button ── */
+  .stop-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 18px;
+    background: #c0392b;
+    border: 2px solid #e74c3c;
+    border-radius: 5px;
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px; font-weight: 800;
+    letter-spacing: .08em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background .15s, transform .1s, box-shadow .15s;
+    box-shadow: 0 2px 8px rgba(192,57,43,.5);
+    white-space: nowrap;
+  }
+  .stop-btn:hover {
+    background: #e74c3c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(192,57,43,.6);
+  }
+  .stop-btn:active { transform: translateY(0); }
+  .stop-btn svg { width:13px; height:13px; fill:currentColor; flex-shrink:0; }
+
+  /* ── Restored field highlight ── */
+  .field-restored input,
+  .field-restored select {
+    border-color: var(--teal) !important;
+    background: var(--teal-light) !important;
+    transition: border-color .3s, background .3s;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">
+      <svg viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 4 A9 9 0 0 1 22 13" stroke="rgba(255,255,255,0.5)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M4 13 A9 9 0 0 1 13 4" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <rect x="9" y="11" width="8" height="11" rx="1" fill="white"/>
+        <polygon points="13,5 7,12 19,12" fill="rgba(255,255,255,0.85)"/>
+        <rect x="11.5" y="17" width="3" height="5" rx="0.5" fill="#3a9bbf"/>
+      </svg>
+    </div>
+    <div class="topbar-name">
+      <span class="line1">HomeOwners</span>
+      <span class="line2">Advantage</span>
+    </div>
+  </div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-right">Budget Processing Tool</div>
+  <div style="margin-left:20px; display:flex; flex-direction:column; align-items:center; gap:4px;">
+    <button class="stop-btn" onclick="stopApp()">
+      <svg viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" rx="1"/></svg>
+      Stop App When Done
+    </button>
+    <span style="font-size:9.5px; color:rgba(255,255,255,.35); letter-spacing:.04em; text-transform:uppercase; font-weight:600;">Click when finished</span>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ── PAGE HEADER ── -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>Monthly <span>Budget</span> Processor</h1>
+      <div class="tagline">Import and consolidate financial data into the master budget workbook</div>
+    </div>
+    <div class="step-pill">2 Steps to Complete</div>
+  </div>
+
+  <!-- ── SESSION RESTORE BANNER ── -->
+  <div class="restore-banner" id="restore-banner">
+    <div class="restore-banner-icon">🕐</div>
+    <div class="restore-banner-text">
+      <div class="restore-banner-title">Restore Last Session?</div>
+      <div class="restore-banner-detail" id="restore-detail">A previous session was found. Restore association details and backup folder?</div>
+    </div>
+    <div class="restore-actions">
+      <button class="restore-btn restore-btn-yes" onclick="restoreSession()">Restore</button>
+      <button class="restore-btn restore-btn-no" onclick="dismissRestore()">Dismiss</button>
+    </div>
+  </div>
+
+  <form id="main-form" enctype="multipart/form-data">
+
+    <!-- ── STEP 1: Details + Files combined ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step-num">1</div>
+        <div class="card-header-title">Association Details</div>
+        <div class="card-header-sub">Required for file naming &amp; backup</div>
+      </div>
+      <div class="card-body">
+        <div class="field-grid">
+
+          <!-- ── ASSOCIATION NAME — hardcoded alphabetical dropdown ── -->
+          <div class="field full" id="field-association">
+            <label>Association Name <span class="req">*</span></label>
+            <select name="association" id="assoc-select" onchange="onAssocChange(this)">
+              <option value="" disabled selected>Select association…</option>
+              <option value="12 Midtown (TAS)-Master"      data-num="120205">12 Midtown (TAS)-Master</option>
+              <option value="12 Midtown (TAS)-Residential" data-num="120105">12 Midtown (TAS)-Residential</option>
+              <option value="Ansley Above the Park"        data-num="140116">Ansley Above the Park</option>
+              <option value="Arizona Lofts"                data-num="191122">Arizona Lofts</option>
+              <option value="Astoria Office"               data-num="182520">Astoria Office</option>
+              <option value="Astoria Residential"          data-num="182120">Astoria Residential</option>
+              <option value="Astoria-Master"               data-num="182320">Astoria-Master</option>
+              <option value="Atlanta Georgetown"           data-num="195123">Atlanta Georgetown</option>
+              <option value="Brookwood Park COA"           data-num="200125">Brookwood Park COA</option>
+              <option value="Citywalk Heights"             data-num="172119">Citywalk Heights</option>
+              <option value="Dakota"                       data-num="139116">Dakota</option>
+              <option value="Element COA"                  data-num="196123">Element COA</option>
+              <option value="Em Overlook-Master"           data-num="107111">Em Overlook-Master</option>
+              <option value="Em Overlook-Residential"      data-num="107211">Em Overlook-Residential</option>
+              <option value="Factory Lofts"                data-num="171119">Factory Lofts</option>
+              <option value="Greystone at Vinings"         data-num="136116">Greystone at Vinings</option>
+              <option value="Halten Hall"                  data-num="111112">Halten Hall</option>
+              <option value="Lenox Heights"                data-num="145117">Lenox Heights</option>
+              <option value="Luxe"                         data-num="183120">Luxe</option>
+              <option value="M West"                       data-num="202125">M West</option>
+              <option value="Mafair Renaissance"           data-num="115211">Mafair Renaissance</option>
+              <option value="Manor House"                  data-num="166118">Manor House</option>
+              <option value="Meridian Buckhead (OBL)"      data-num="163118">Meridian Buckhead (OBL)</option>
+              <option value="One Brookhaven"               data-num="141117">One Brookhaven</option>
+              <option value="Park Central"                 data-num="190021">Park Central</option>
+              <option value="Peachtree Battle"             data-num="193123">Peachtree Battle</option>
+              <option value="Peachtree Malone"             data-num="137116">Peachtree Malone</option>
+              <option value="Piedmont Crest"               data-num="201125">Piedmont Crest</option>
+              <option value="Plz Midtown-Master"           data-num="118212">Plz Midtown-Master</option>
+              <option value="Plz Midtown-Residential"      data-num="118108">Plz Midtown-Residential</option>
+              <option value="Ptree Residences"             data-num="138116">Ptree Residences</option>
+              <option value="Realm - Master"               data-num="203225">Realm - Master</option>
+              <option value="Realm - Residential"          data-num="203125">Realm - Residential</option>
+              <option value="Reid House COA"               data-num="199124">Reid House COA</option>
+              <option value="Reynolds Residential"         data-num="174119">Reynolds Residential</option>
+              <option value="ROVL - Retreat at Old Vinings Lake" data-num="192123">ROVL - Retreat at Old Vinings Lake</option>
+              <option value="Somerset Heights"             data-num="170119">Somerset Heights</option>
+              <option value="Spire Master"                 data-num="194223">Spire Master</option>
+              <option value="Spire Residential"            data-num="194123">Spire Residential</option>
+              <option value="The Aramore COA"              data-num="198124">The Aramore COA</option>
+              <option value="The Variations"               data-num="197124">The Variations</option>
+              <option value="The W-45 Allen"               data-num="161118">The W-45 Allen</option>
+              <option value="The Winston"                  data-num="126111">The Winston</option>
+              <option value="Twelve Cent Park Master"      data-num="121206">Twelve Cent Park Master</option>
+              <option value="Twelve Cent Park Res"         data-num="121106">Twelve Cent Park Res</option>
+              <option value="Two West Wesley"              data-num="165118">Two West Wesley</option>
+              <option value="View at Chastain"             data-num="180120">View at Chastain</option>
+              <option value="Villa Sonoma"                 data-num="129115">Villa Sonoma</option>
+              <option value="Vinings View"                 data-num="124109">Vinings View</option>
+              <option value="Wilburn House"                data-num="160118">Wilburn House</option>
+            </select>
+            <!-- hidden field carries the number to the server -->
+            <input type="hidden" name="number" id="number-hidden">
+            <span class="field-error-msg">Please select an association</span>
+          </div>
+
+          <div class="field" id="field-month">
+            <label>Month <span class="req">*</span></label>
+            <select name="month">
+              <option value="" disabled selected>Select month</option>
+              <option value="01">January</option><option value="02">February</option>
+              <option value="03">March</option><option value="04">April</option>
+              <option value="05">May</option><option value="06">June</option>
+              <option value="07">July</option><option value="08">August</option>
+              <option value="09">September</option><option value="10">October</option>
+              <option value="11">November</option><option value="12">December</option>
+            </select>
+            <span class="field-error-msg">Please select a month</span>
+          </div>
+
+          <div class="field" id="field-year">
+            <label>Year <span class="req">*</span></label>
+            <input type="text" name="year" placeholder="e.g. 2025" maxlength="4">
+            <span class="field-error-msg">Year is required (4 digits)</span>
+          </div>
+
+          <div class="field" id="field-password">
+            <label>Workbook Password <span class="req">*</span></label>
+            <input type="password" name="password" placeholder="Enter workbook password">
+            <span class="field-error-msg">Password is required</span>
+          </div>
+
+          <div class="field" id="field-backup">
+            <label>Backup Folder <span class="req">*</span></label>
+            <div class="folder-picker" id="folder-picker">
+              <div class="folder-display">
+                <div class="folder-display-icon">📁</div>
+                <div class="folder-display-text">
+                  <div class="folder-display-name placeholder" id="folder-name">No folder selected</div>
+                  <div class="folder-display-full" id="folder-full" style="display:none"></div>
+                </div>
+              </div>
+              <button type="button" class="folder-browse-btn" onclick="browseFolder()">
+                <svg viewBox="0 0 16 16"><path d="M1 3a1 1 0 011-1h4l2 2h6a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+                Browse
+              </button>
+              <input type="hidden" name="backup_folder" id="backup_folder_val">
+            </div>
+            <span class="field-error-msg">Please select a backup folder</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: Source Documents ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step-num">2</div>
+        <div class="card-header-title">Source Documents</div>
+        <div class="card-header-sub">Click each tile to select the corresponding file</div>
+      </div>
+      <div class="card-body">
+        <div class="files-grid">
+
+          <div class="file-row macro-row" id="card-target">
+            <input type="file" name="target" accept=".xlsm" onchange="onFile('target',this)">
+            <div class="file-icon-wrap">📁</div>
+            <div class="file-text">
+              <div class="file-title">Budget Macro Workbook</div>
+              <div class="file-desc">Master .xlsm template — all data imports here</div>
+              <div class="file-selected" id="fn-target"></div>
+              <div class="file-hint">Click to select .xlsm file</div>
+            </div>
+            <div class="file-badge"><div class="file-badge-inner">✓</div></div>
+          </div>
+
+          <div class="file-row" id="card-balance">
+            <input type="file" name="balance" accept=".xls,.xlsx" onchange="onFile('balance',this)">
+            <div class="file-icon-wrap">📊</div>
+            <div class="file-text">
+              <div class="file-title">Balance Sheet</div>
+              <div class="file-desc">Ex-BalanceSheet-YYYY-MM.xls</div>
+              <div class="file-selected" id="fn-balance"></div>
+              <div class="file-hint">Click to select file</div>
+            </div>
+            <div class="file-badge"><div class="file-badge-inner">✓</div></div>
+          </div>
+
+          <div class="file-row" id="card-operating">
+            <input type="file" name="operating" accept=".xls,.xlsx" onchange="onFile('operating',this)">
+            <div class="file-icon-wrap">📋</div>
+            <div class="file-text">
+              <div class="file-title">Operating Budget Export</div>
+              <div class="file-desc">Ex-Budget Export-OP.xlsx</div>
+              <div class="file-selected" id="fn-operating"></div>
+              <div class="file-hint">Click to select file</div>
+            </div>
+            <div class="file-badge"><div class="file-badge-inner">✓</div></div>
+          </div>
+
+          <div class="file-row" id="card-reserve">
+            <input type="file" name="reserve" accept=".xls,.xlsx" onchange="onFile('reserve',this)">
+            <div class="file-icon-wrap">🏦</div>
+            <div class="file-text">
+              <div class="file-title">Reserve Budget Export</div>
+              <div class="file-desc">Ex-Budget Export-RSV.xlsx</div>
+              <div class="file-selected" id="fn-reserve"></div>
+              <div class="file-hint">Click to select file</div>
+            </div>
+            <div class="file-badge"><div class="file-badge-inner">✓</div></div>
+          </div>
+
+          <div class="file-row" id="card-cy">
+            <input type="file" name="cy" accept=".xls,.xlsx" onchange="onFile('cy',this)">
+            <div class="file-icon-wrap">📈</div>
+            <div class="file-text">
+              <div class="file-title">Current Year Income Statement</div>
+              <div class="file-desc">Ex-Income Statement-CY.xls</div>
+              <div class="file-selected" id="fn-cy"></div>
+              <div class="file-hint">Click to select file</div>
+            </div>
+            <div class="file-badge"><div class="file-badge-inner">✓</div></div>
+          </div>
+
+          <div class="file-row" id="card-py">
+            <input type="file" name="py" accept=".xls,.xlsx" onchange="onFile('py',this)">
+            <div class="file-icon-wrap">📉</div>
+            <div class="file-text">
+              <div class="file-title">Prior Year Income Statement</div>
+              <div class="file-desc">Ex-Income Statement-PY.xls</div>
+              <div class="file-selected" id="fn-py"></div>
+              <div class="file-hint">Click to select file</div>
+            </div>
+            <div class="file-badge"><div class="file-badge-inner">✓</div></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RUN ── -->
+    <div class="run-card">
+      <!-- Validation banner (detailed) -->
+      <div class="validation-banner" id="validation-banner">
+        <div class="validation-banner-header">
+          <svg viewBox="0 0 16 16"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 3.5h1.5v5h-1.5v-5zm0 6h1.5v1.5h-1.5V10.5z"/></svg>
+          <span class="validation-banner-title" id="validation-title">Please fix the following before processing:</span>
+        </div>
+        <ul class="validation-error-list" id="validation-error-list"></ul>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="prog-wrap" id="prog-wrap">
+        <div class="prog-track">
+          <div class="prog-fill" id="prog-fill"></div>
+        </div>
+        <div class="prog-label">
+          <span class="prog-stage" id="prog-stage">Initializing…</span>
+          <span class="prog-pct" id="prog-pct">0%</span>
+        </div>
+      </div>
+
+      <button type="button" class="run-btn" id="run-btn" onclick="runProcess()">
+        Run Budget Processor
+      </button>
+      <div class="run-note">Complete all fields and select all files before processing</div>
+    </div>
+
+  </form>
+
+  <!-- ── LOG ── -->
+  <div class="log-wrap" id="log-wrap">
+    <div class="log-header">
+      <span class="log-title">Process Log</span>
+      <button class="log-clear" onclick="clearLog()">Clear</button>
+    </div>
+    <div class="log-body" id="log-body"></div>
+  </div>
+
+  <!-- ── RESULT ── -->
+  <div class="result-block" id="result-block">
+    <div class="result-title" id="result-title"></div>
+    <div class="result-folder" id="result-folder"></div>
+    <div class="result-files" id="result-files"></div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div class="page-footer">
+    <div class="footer-logo">
+      <svg viewBox="0 0 16 16"><path d="M8 1L1 5v6l7 4 7-4V5L8 1zm0 1.8l5 2.8-5 2.8-5-2.8 5-2.8zM2 6.6l5 2.8v5.1L2 11.7V6.6zm6 7.9V9.4l5-2.8v5.1L8 14.5z"/></svg>
+    </div>
+    <div class="footer-text">HomeOwners <span>Advantage</span> &nbsp;·&nbsp; Budget Processing Tool</div>
+  </div>
+
+</div>
+
+<script>
+  // ── Progress bar ──────────────────────────────────────────────────────────
+  const STAGES = [
+    ["Validating form…",                    5],
+    ["Uploading files…",                   20],
+    ["Processing Balance Sheet…",          35],
+    ["Processing Budget Exports…",         50],
+    ["Processing Income Statements…",      65],
+    ["Writing to workbook…",               80],
+    ["Saving & backing up…",               92],
+    ["Complete",                          100],
+  ];
+
+  let currentStageIdx = 0;
+
+  function setProgress(stageIdx) {
+    const wrap    = document.getElementById('prog-wrap');
+    const fill    = document.getElementById('prog-fill');
+    const stageEl = document.getElementById('prog-stage');
+    const pctEl   = document.getElementById('prog-pct');
+
+    if (stageIdx < 0) {
+      wrap.style.display = 'none';
+      fill.style.width = '0%';
+      currentStageIdx = 0;
+      return;
+    }
+    const idx = Math.min(stageIdx, STAGES.length - 1);
+    currentStageIdx = idx;
+    const [label, pct] = STAGES[idx];
+    wrap.style.display = 'block';
+    fill.style.width = pct + '%';
+    stageEl.textContent = label;
+    pctEl.textContent = pct + '%';
+  }
+
+  function hideProgress() {
+    setTimeout(() => setProgress(-1), 1400);
+  }
+
+  // ── File tiles ────────────────────────────────────────────────────────────
+  function onFile(key, input) {
+    const card   = document.getElementById('card-' + key);
+    const nameEl = document.getElementById('fn-' + key);
+    if (input.files.length > 0) {
+      const fname  = input.files[0].name;
+      const ext    = fname.slice(fname.lastIndexOf('.')).toLowerCase();
+      const def    = FILE_DEFS.find(d => d.key === key);
+      const valid  = def ? def.exts.includes(ext) : true;
+      if (valid) {
+        card.classList.add('done');
+        card.classList.remove('file-error');
+        nameEl.textContent = fname;
+        removeValidationItem('file-' + key);
+      } else {
+        card.classList.remove('done');
+        card.classList.add('file-error');
+        nameEl.textContent = '';
+        const allowed = def ? def.exts.join(' or ') : '';
+        const list = document.getElementById('validation-error-list');
+        const banner = document.getElementById('validation-banner');
+        let li = document.getElementById('vli-file-' + key);
+        if (!li) { li = document.createElement('li'); li.id = 'vli-file-' + key; list.appendChild(li); }
+        li.innerHTML = `<strong>${def ? def.label : key}</strong> — wrong file type '${ext}' (expected ${allowed})`;
+        document.getElementById('validation-title').textContent = 'Please fix the following before processing:';
+        banner.classList.add('show');
+      }
+    } else {
+      card.classList.remove('done');
+      nameEl.textContent = '';
+    }
+  }
+
+  // ── Folder picker ─────────────────────────────────────────────────────────
+  function applyFolder(fullPath) {
+    const parts = fullPath.replace(/\\/g, '/').split('/');
+    const folderName = parts[parts.length - 1] || fullPath;
+    document.getElementById('folder-name').textContent = folderName;
+    document.getElementById('folder-name').classList.remove('placeholder');
+    document.getElementById('folder-full').style.display = 'none';
+    document.getElementById('backup_folder_val').value = fullPath;
+    document.getElementById('folder-picker').classList.add('has-path');
+    document.getElementById('field-backup').classList.remove('field-error');
+    removeValidationItem('field-backup');
+  }
+
+  async function browseFolder() {
+    const btn = document.querySelector('.folder-browse-btn');
+    btn.innerHTML = 'Opening…';
+    btn.disabled = true;
+    try {
+      const res  = await fetch('/pick-folder', { method: 'POST' });
+      const data = await res.json();
+      if (data.ok && data.path) {
+        applyFolder(data.path);
+        await fetch('/memory/folder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ last_backup_folder: data.path })
+        });
+      }
+    } catch (err) {
+      alert('Could not open folder browser. Make sure the app server is running.');
+    }
+    btn.innerHTML = '<svg viewBox="0 0 16 16" style="width:13px;height:13px;fill:rgba(255,255,255,.85)"><path d="M1 3a1 1 0 011-1h4l2 2h6a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg> Browse';
+    btn.disabled = false;
+  }
+
+  // ── Association dropdown ──────────────────────────────────────────────────
+  function onAssocChange(sel) {
+    const opt = sel.options[sel.selectedIndex];
+    const num = opt ? (opt.dataset.num || '') : '';
+    document.getElementById('number-hidden').value = num;
+    document.getElementById('field-association').classList.remove('field-error');
+    removeValidationItem('field-association');
+  }
+
+  // ── Validation ────────────────────────────────────────────────────────────
+  const FIELD_DEFS = [
+    { id: 'field-association', name: 'association', label: 'Association Name',  validate: v => !!v,                                                                                     hint: 'Required' },
+    { id: 'field-month',       name: 'month',       label: 'Month',             validate: v => !!v,                                                                                     hint: 'Please select a month' },
+    { id: 'field-year',        name: 'year',        label: 'Year',              validate: v => /^\d{4}$/.test(v.trim()) && parseInt(v) >= 2000 && parseInt(v) <= 2100,                hint: '4-digit year between 2000–2100' },
+    { id: 'field-password',    name: 'password',    label: 'Workbook Password', validate: v => !!v.trim(),                                                                              hint: 'Required' },
+  ];
+
+  const FILE_DEFS = [
+    { key: 'target',    label: 'Budget Macro Workbook',         exts: ['.xlsm'] },
+    { key: 'balance',   label: 'Balance Sheet',                 exts: ['.xls', '.xlsx'] },
+    { key: 'operating', label: 'Operating Budget Export',       exts: ['.xls', '.xlsx'] },
+    { key: 'reserve',   label: 'Reserve Budget Export',         exts: ['.xls', '.xlsx'] },
+    { key: 'cy',        label: 'Current Year Income Statement', exts: ['.xls', '.xlsx'] },
+    { key: 'py',        label: 'Prior Year Income Statement',   exts: ['.xls', '.xlsx'] },
+  ];
+
+  // Live-clear errors on input
+  FIELD_DEFS.forEach(({ id, name }) => {
+    const el = document.querySelector(`[name="${name}"]`);
+    if (el) ['input','change'].forEach(evt => el.addEventListener(evt, () => {
+      document.getElementById(id).classList.remove('field-error');
+      removeValidationItem(id);
+    }));
+  });
+
+  function removeValidationItem(key) {
+    const li = document.getElementById('vli-' + key);
+    if (li) li.remove();
+    const list = document.getElementById('validation-error-list');
+    if (list && list.children.length === 0) {
+      document.getElementById('validation-banner').classList.remove('show');
+    }
+  }
+
+  function validateForm() {
+    const errors = [];
+
+    FIELD_DEFS.forEach(({ id, name, label, validate }) => {
+      const el  = document.querySelector(`[name="${name}"]`);
+      const val = el.value;
+      if (!validate(val)) {
+        document.getElementById(id).classList.add('field-error');
+        errors.push({ key: id, message: `<strong>${label}</strong> is missing or invalid` });
+      } else {
+        document.getElementById(id).classList.remove('field-error');
+      }
+    });
+
+    if (!document.getElementById('backup_folder_val').value.trim()) {
+      document.getElementById('field-backup').classList.add('field-error');
+      errors.push({ key: 'field-backup', message: '<strong>Backup Folder</strong> — no folder selected' });
+    } else {
+      document.getElementById('field-backup').classList.remove('field-error');
+    }
+
+    const form = document.getElementById('main-form');
+    FILE_DEFS.forEach(({ key, label, exts }) => {
+      const input = form.querySelector(`[name="${key}"]`);
+      const card  = document.getElementById('card-' + key);
+      if (!input.files || input.files.length === 0) {
+        card.classList.add('file-error');
+        errors.push({ key: 'file-' + key, message: `<strong>${label}</strong> — no file selected` });
+      } else {
+        const fname = input.files[0].name;
+        const ext   = fname.slice(fname.lastIndexOf('.')).toLowerCase();
+        if (!exts.includes(ext)) {
+          card.classList.add('file-error');
+          errors.push({ key: 'file-' + key, message: `<strong>${label}</strong> — wrong file type '${ext}' (expected ${exts.join(' or ')})` });
+        } else {
+          card.classList.remove('file-error');
+        }
+      }
+    });
+
+    if (errors.length > 0) {
+      const banner  = document.getElementById('validation-banner');
+      const title   = document.getElementById('validation-title');
+      const list    = document.getElementById('validation-error-list');
+
+      const fc = errors.filter(e => e.key.startsWith('file-')).length;
+      const dc = errors.length - fc;
+      let parts = [];
+      if (dc) parts.push(`${dc} detail field${dc > 1 ? 's' : ''}`);
+      if (fc) parts.push(`${fc} source file${fc > 1 ? 's' : ''}`);
+      title.textContent = `Please fix ${parts.join(' and ')} before processing:`;
+
+      list.innerHTML = '';
+      errors.forEach(({ key, message }) => {
+        const li = document.createElement('li');
+        li.id = 'vli-' + key;
+        li.innerHTML = message;
+        list.appendChild(li);
+      });
+
+      banner.classList.add('show');
+      const firstKey = errors[0].key;
+      let target = null;
+      if (firstKey.startsWith('file-')) {
+        target = document.getElementById('card-' + firstKey.replace('file-',''));
+      } else {
+        target = document.getElementById(firstKey);
+      }
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    }
+
+    document.getElementById('validation-banner').classList.remove('show');
+    return true;
+  }
+
+  // ── Log ───────────────────────────────────────────────────────────────────
+  function addLog(msg, level = 'info') {
+    const wrap = document.getElementById('log-wrap');
+    wrap.classList.add('show');
+    const body = document.getElementById('log-body');
+    const ts   = new Date().toLocaleTimeString('en-US', { hour12: false });
+    const line = document.createElement('div');
+    line.className = 'll ' + level;
+    line.innerHTML = `<span class="ts">[${ts}]</span>&nbsp;<span class="m">${msg}</span>`;
+    body.appendChild(line);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function clearLog() {
+    document.getElementById('log-body').innerHTML = '';
+    document.getElementById('log-wrap').classList.remove('show');
+  }
+
+  // ── Run ───────────────────────────────────────────────────────────────────
+  async function runProcess() {
+    if (!validateForm()) return;
+
+    const btn = document.getElementById('run-btn');
+    const resultBlock = document.getElementById('result-block');
+    clearLog();
+    resultBlock.classList.remove('show', 'fail');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Processing…';
+
+    setProgress(0);
+    await sleep(300);
+    setProgress(1);
+    addLog('Uploading files to server…', 'info');
+
+    const formData = new FormData(document.getElementById('main-form'));
+
+    try {
+      const res = await fetch('/process', { method: 'POST', body: formData });
+
+      setProgress(2); await sleep(400);
+      setProgress(3); await sleep(400);
+      setProgress(4); await sleep(400);
+      setProgress(5); await sleep(400);
+      setProgress(6);
+
+      const data = await res.json();
+
+      if (data.logs) { data.logs.forEach(l => addLog(l.msg, l.level)); }
+
+      setProgress(7);
+
+      if (data.ok) {
+        document.getElementById('result-title').textContent = 'Processing Complete';
+        document.getElementById('result-folder').innerHTML = `Files saved to: <span>${data.dest_folder}</span>`;
+        const filesEl = document.getElementById('result-files');
+        filesEl.innerHTML = '';
+        data.output_files.forEach(f => {
+          const el = document.createElement('div');
+          el.className = 'rf';
+          el.innerHTML = `<span>${f.src}</span><span class="arrow">→</span><span class="dst">${f.dst}</span>`;
+          filesEl.appendChild(el);
+        });
+        resultBlock.classList.add('show');
+
+        await fetch('/memory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            association: document.querySelector('[name="association"]').value.trim(),
+            number:      document.querySelector('[name="number"]').value.trim(),
+            month:       document.querySelector('[name="month"]').value,
+            year:        document.querySelector('[name="year"]').value.trim(),
+          })
+        });
+
+
+
+      } else {
+        const errMsgs = (data.logs || []).filter(l => l.level === 'error');
+        document.getElementById('result-title').textContent = 'Processing Failed';
+        if (errMsgs.length > 0) {
+          document.getElementById('result-folder').innerHTML =
+            'Error: <span>' + errMsgs.map(l => l.msg).join(' | ') + '</span>';
+        } else {
+          document.getElementById('result-folder').innerHTML = 'Please review the process log above for details.';
+        }
+        document.getElementById('result-files').innerHTML = '';
+        resultBlock.classList.add('show', 'fail');
+      }
+    } catch (err) {
+      addLog('Network error: ' + err.message, 'error');
+      document.getElementById('result-title').textContent = 'Connection Error';
+      document.getElementById('result-folder').innerHTML =
+        'Could not reach the local server. Please ensure the application is running.';
+      resultBlock.classList.add('show', 'fail');
+      setProgress(7);
+    }
+
+    hideProgress();
+    btn.disabled = false;
+    btn.innerHTML = 'Run Budget Processor';
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  // ── Stop app ──────────────────────────────────────────────────────────────
+  async function stopApp() {
+    const confirmed = confirm(
+      "This will shut down the Budget Processor server.\n\n" +
+      "You will need to double-click the launcher again to restart it.\n\n" +
+      "Stop the app?"
+    );
+    if (!confirmed) return;
+    try { await fetch('/shutdown', { method: 'POST' }); } catch (e) {}
+    document.body.innerHTML =
+      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'height:100vh;font-family:Montserrat,sans-serif;color:#1e3a5f;gap:16px;">' +
+      '<div style="font-size:40px;">✓</div>' +
+      '<div style="font-size:20px;font-weight:700;">Budget Processor Stopped</div>' +
+      '<div style="font-size:14px;color:#6b7f93;">You can close this tab. Double-click the launcher to restart.</div>' +
+      '</div>';
+  }
+
+  // ── Memory, session restore & defaults ────────────────────────────────────
+  let sessionData  = {};
+  let restoredData = null;
+
+  const MONTH_NAMES = {
+    '01':'January','02':'February','03':'March','04':'April',
+    '05':'May','06':'June','07':'July','08':'August',
+    '09':'September','10':'October','11':'November','12':'December'
+  };
+
+  async function loadMemory() {
+    try {
+      const res  = await fetch('/memory');
+      const data = await res.json();
+      sessionData = data;
+      return data;
+    } catch (e) {
+      sessionData = {};
+      return {};
+    }
+  }
+
+  async function initPage() {
+    const data = await loadMemory();
+
+    const hasAssoc  = data.last_association && data.last_number;
+    const hasFolder = data.last_backup_folder;
+    const hasPeriod = data.last_month && data.last_year;
+
+    if (hasAssoc || hasFolder || hasPeriod) {
+      let parts = [];
+      if (hasAssoc)  parts.push(`<span>${data.last_association} (#${data.last_number})</span>`);
+      if (hasPeriod) {
+        const mName = MONTH_NAMES[data.last_month] || data.last_month;
+        parts.push(`period <span>${mName} ${data.last_year}</span>`);
+      }
+      if (hasFolder) {
+        const folderParts = (data.last_backup_folder || '').replace(/\\/g,'/').split('/');
+        const fname = folderParts[folderParts.length - 1] || data.last_backup_folder;
+        parts.push(`backup folder <span>${fname}</span>`);
+      }
+      document.getElementById('restore-detail').innerHTML =
+        'Last session: ' + parts.join(' · ') + '. Restore these values?';
+      document.getElementById('restore-banner').classList.add('show');
+      restoredData = data;
+    }
+
+    // Set date defaults only if no saved period to restore
+    if (!restoredData || (!restoredData.last_month && !restoredData.last_year)) {
+      const now   = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      document.querySelector('select[name="month"]').value = month;
+      document.querySelector('input[name="year"]').value   = now.getFullYear();
+    }
+  }
+
+  function restoreSession() {
+    if (!restoredData) return;
+    const d = restoredData;
+
+    function flashField(fieldId) {
+      const el = document.getElementById(fieldId);
+      el.classList.add('field-restored');
+      setTimeout(() => el.classList.remove('field-restored'), 1800);
+    }
+
+    if (d.last_association) {
+      const sel = document.getElementById('assoc-select');
+      if (sel) {
+        sel.value = d.last_association;
+        onAssocChange(sel);
+      }
+      flashField('field-association');
+    }
+    if (d.last_month) {
+      document.querySelector('select[name="month"]').value = d.last_month;
+      document.getElementById('field-month').classList.remove('field-error');
+      flashField('field-month');
+    }
+    if (d.last_year) {
+      document.querySelector('input[name="year"]').value = d.last_year;
+      document.getElementById('field-year').classList.remove('field-error');
+      flashField('field-year');
+    }
+    if (d.last_backup_folder) {
+      applyFolder(d.last_backup_folder);
+    }
+
+    document.getElementById('restore-banner').classList.remove('show');
+  }
+
+  function dismissRestore() {
+    document.getElementById('restore-banner').classList.remove('show');
+  }
+
+  window.onload = () => initPage();
+</script>
+</body>
+</html>
