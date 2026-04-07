@@ -16,9 +16,14 @@ That's it. You're ready.
 ## Every day use
 
 Double-click **"Launch Budget Processor.vbs"**
+   - This is located in the 'Start_Stop_Tools' Folder
 
 Your browser opens automatically with the app.
-No terminal window. No typing.
+
+## Closing the Project
+
+Double-click **Stop Budget Processor.vbs**
+   - This will stop the python code running. This the project is not closed, the code will continue to run, slowling down your computer. 
 
 ---
 
