@@ -419,7 +419,7 @@ def process():
 
         # ── Output file names ─────────────────────────────────────────────
         move_map = [
-            ("target",    f"{association}_{date}_Budget_Copy.xlsm"),
+            ("target",    f"{association}_{date}_Budget.xlsm"),
             ("balance",   f"{number}_{association}_Balance_Sheet_{date}.xls"),
             ("operating", f"{number}_{association}_Budget_Export_OP.xlsx"),
             ("reserve",   f"{number}_{association}_Budget_Export_RSV.xlsx"),
