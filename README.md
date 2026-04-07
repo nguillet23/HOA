@@ -25,5 +25,6 @@ No terminal window. No typing.
 ## Notes
 
 - Microsoft Excel must be installed on this PC (required for xlwings)
+- Python must also be installed (Python is the backend of the project)
 - If you double-click the launcher and nothing happens after ~15 seconds,
   run INSTALL.vbs again to make sure all packages installed correctly
