@@ -2,7 +2,6 @@ import os
 import sys
 import shutil
 import traceback
-import tempfile
 import threading
 import webbrowser
 import time
@@ -28,6 +27,7 @@ def load_memory():
         "last_number": "",
         "last_month": "",
         "last_year": "",
+        "last_file_paths": {},
     }
 
 
@@ -42,6 +42,7 @@ def migrate_memory(data):
     data.setdefault("last_number", "")
     data.setdefault("last_month", "")
     data.setdefault("last_year", "")
+    data.setdefault("last_file_paths", {})
     return data
 
 
@@ -54,86 +55,6 @@ def resource_path(relative):
 app = Flask(__name__, template_folder=resource_path('templates'))
 
 COLS_TO_DROP = [3, 4, 6, 7, 10, 12, 13, 15, 16, 18, 19, 22, 24, 25, 28, 29]
-
-
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-
-# ── Memory endpoints ──────────────────────────────────────────────────────────
-
-@app.route("/memory", methods=["GET"])
-def get_memory():
-    data = migrate_memory(load_memory())
-    return jsonify(data)
-
-
-@app.route("/memory", methods=["POST"])
-def update_memory():
-    data    = migrate_memory(load_memory())
-    payload = request.json or {}
-    assoc   = payload.get("association", "").strip()
-    number  = payload.get("number", "").strip()
-    month   = payload.get("month", "").strip()
-    year    = payload.get("year", "").strip()
-
-    if assoc:
-        data["last_association"] = assoc
-    if number:
-        data["last_number"] = number
-    if month:
-        data["last_month"] = month
-    if year:
-        data["last_year"] = year
-
-    save_memory(data)
-    return jsonify({"ok": True})
-
-
-@app.route("/memory/folder", methods=["POST"])
-def update_folder_memory():
-    data    = migrate_memory(load_memory())
-    payload = request.json or {}
-    folder  = payload.get("last_backup_folder", "").strip()
-    if folder:
-        data["last_backup_folder"] = folder
-        save_memory(data)
-    return jsonify({"ok": True})
-
-
-# ── Folder picker ─────────────────────────────────────────────────────────────
-
-@app.route("/pick-folder", methods=["POST"])
-def pick_folder():
-    try:
-        root = tk.Tk()
-        root.withdraw()
-        root.wm_attributes('-topmost', True)
-        folder = filedialog.askdirectory(title="Select Backup Folder")
-        root.destroy()
-        if folder:
-            folder = os.path.normpath(folder)
-            return jsonify({"ok": True, "path": folder})
-        else:
-            return jsonify({"ok": False, "path": ""})
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)})
-
-
-@app.route("/shutdown", methods=["POST"])
-def shutdown():
-    func = request.environ.get("werkzeug.server.shutdown")
-    if func:
-        func()
-    else:
-        t = threading.Timer(0.5, lambda: os.kill(os.getpid(), 9))
-        t.daemon = True
-        t.start()
-    return jsonify({"ok": True})
-
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
 
 FILE_LABELS = {
     "balance":   "Balance Sheet",
@@ -155,29 +76,149 @@ FILE_EXTENSIONS = {
     "py":        [".xls", ".xlsx"],
 }
 
+FILE_DIALOGS = {
+    "target":    ("Budget Macro Workbook (.xlsm)",     [("Excel Macro Files", "*.xlsm")]),
+    "balance":   ("Balance Sheet (.xls / .xlsx)",      [("Excel Files", "*.xls *.xlsx")]),
+    "operating": ("Operating Budget Export (.xlsx)",   [("Excel Files", "*.xls *.xlsx")]),
+    "reserve":   ("Reserve Budget Export (.xlsx)",     [("Excel Files", "*.xls *.xlsx")]),
+    "cy":        ("Current Year Income Statement",     [("Excel Files", "*.xls *.xlsx")]),
+    "py":        ("Prior Year Income Statement",       [("Excel Files", "*.xls *.xlsx")]),
+}
+
 VALID_MONTHS = {str(i).zfill(2) for i in range(1, 13)}
 
 
-def _validate_request(form, files):
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+# ── Memory endpoints ──────────────────────────────────────────────────────────
+
+@app.route("/memory", methods=["GET"])
+def get_memory():
+    data = migrate_memory(load_memory())
+    return jsonify(data)
+
+
+@app.route("/memory", methods=["POST"])
+def update_memory():
+    data    = migrate_memory(load_memory())
+    payload = request.json or {}
+    for key in ("association", "number", "month", "year"):
+        val = payload.get(key, "").strip()
+        if val:
+            data[f"last_{key}"] = val
+    save_memory(data)
+    return jsonify({"ok": True})
+
+
+@app.route("/memory/folder", methods=["POST"])
+def update_folder_memory():
+    data    = migrate_memory(load_memory())
+    payload = request.json or {}
+    folder  = payload.get("last_backup_folder", "").strip()
+    if folder:
+        data["last_backup_folder"] = folder
+        save_memory(data)
+    return jsonify({"ok": True})
+
+
+@app.route("/memory/files", methods=["POST"])
+def update_file_memory():
+    """Persist the last-used file paths so the UI can suggest them next session."""
+    data    = migrate_memory(load_memory())
+    payload = request.json or {}
+    paths   = payload.get("paths", {})
+    if paths:
+        data["last_file_paths"] = paths
+        save_memory(data)
+    return jsonify({"ok": True})
+
+
+# ── Native file / folder pickers ──────────────────────────────────────────────
+
+@app.route("/pick-folder", methods=["POST"])
+def pick_folder():
+    try:
+        root = tk.Tk(); root.withdraw(); root.wm_attributes('-topmost', True)
+        folder = filedialog.askdirectory(title="Select Backup Folder")
+        root.destroy()
+        if folder:
+            return jsonify({"ok": True, "path": os.path.normpath(folder)})
+        return jsonify({"ok": False, "path": ""})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
+
+
+@app.route("/pick-file", methods=["POST"])
+def pick_file():
+    """Open a native file-picker for a specific file slot."""
+    payload   = request.json or {}
+    file_key  = payload.get("key", "")
+    init_dir  = payload.get("init_dir", os.path.expanduser("~"))
+
+    if file_key not in FILE_DIALOGS:
+        return jsonify({"ok": False, "error": "Unknown file key"})
+
+    title, filetypes = FILE_DIALOGS[file_key]
+    try:
+        root = tk.Tk(); root.withdraw(); root.wm_attributes('-topmost', True)
+        path = filedialog.askopenfilename(
+            title=f"Select {title}",
+            filetypes=filetypes + [("All files", "*.*")],
+            initialdir=init_dir,
+        )
+        root.destroy()
+        if path:
+            path = os.path.normpath(path)
+            ext  = os.path.splitext(path)[1].lower()
+            allowed = FILE_EXTENSIONS[file_key]
+            if ext not in allowed:
+                return jsonify({
+                    "ok": False,
+                    "error": f"Wrong file type '{ext}' — expected {' or '.join(allowed)}"
+                })
+            return jsonify({
+                "ok":       True,
+                "path":     path,
+                "filename": os.path.basename(path),
+                "dir":      os.path.dirname(path),
+            })
+        return jsonify({"ok": False, "path": ""})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
+
+
+@app.route("/shutdown", methods=["POST"])
+def shutdown():
+    t = threading.Timer(0.5, lambda: os.kill(os.getpid(), 9))
+    t.daemon = True; t.start()
+    return jsonify({"ok": True})
+
+
+# ── Validation ────────────────────────────────────────────────────────────────
+
+def _validate_request(payload):
     errors = []
 
-    assoc = form.get("association", "").strip()
+    assoc = payload.get("association", "").strip()
     if not assoc:
         errors.append("Association Name is missing")
     elif len(assoc) > 100:
         errors.append("Association Name is too long (max 100 characters)")
 
-    number = form.get("number", "").strip()
+    number = payload.get("number", "").strip()
     if not number:
         errors.append("Association Number is missing")
 
-    month = form.get("month", "").strip()
+    month = payload.get("month", "").strip()
     if not month:
         errors.append("Month is missing")
     elif month not in VALID_MONTHS:
         errors.append(f"Month '{month}' is not valid — expected 01–12")
 
-    year = form.get("year", "").strip()
+    year = payload.get("year", "").strip()
     if not year:
         errors.append("Year is missing")
     elif not year.isdigit():
@@ -187,21 +228,23 @@ def _validate_request(form, files):
     elif not (2000 <= int(year) <= 2100):
         errors.append(f"Year '{year}' is out of the expected range (2000–2100)")
 
-    if not form.get("password", ""):
+    if not payload.get("password", ""):
         errors.append("Workbook Password is missing")
 
-    backup_folder = form.get("backup_folder", "").strip()
+    backup_folder = payload.get("backup_folder", "").strip()
     if not backup_folder:
         errors.append("Backup Folder is missing — please select a folder")
     elif not os.path.isdir(backup_folder):
         errors.append(f"Backup Folder does not exist or is not accessible: {backup_folder}")
 
     for k in FILE_KEYS:
-        if k not in files or files[k].filename == "":
+        path = payload.get(f"path_{k}", "").strip()
+        if not path:
             errors.append(f"{FILE_LABELS[k]} — no file selected")
+        elif not os.path.isfile(path):
+            errors.append(f"{FILE_LABELS[k]} — file not found on disk: {os.path.basename(path)}")
         else:
-            fname   = files[k].filename
-            ext     = os.path.splitext(fname)[1].lower()
+            ext     = os.path.splitext(path)[1].lower()
             allowed = FILE_EXTENSIONS[k]
             if ext not in allowed:
                 errors.append(
@@ -216,8 +259,7 @@ def _validate_request(form, files):
 
 @app.route("/process", methods=["POST"])
 def process():
-    logs   = []
-    tmpdir = None
+    logs = []
 
     def log(msg, level="info"):
         logs.append({"msg": msg, "level": level})
@@ -227,88 +269,69 @@ def process():
         return jsonify({"ok": False, "logs": logs})
 
     try:
+        payload = request.json or {}
+
         # ── Backend validation ────────────────────────────────────────────
-        validation_errors = _validate_request(request.form, request.files)
+        validation_errors = _validate_request(payload)
         if validation_errors:
             for err in validation_errors:
                 log(err, "error")
-            return jsonify({
-                "ok": False,
-                "logs": logs,
-                "validation_errors": validation_errors,
-            })
+            return jsonify({"ok": False, "logs": logs, "validation_errors": validation_errors})
 
-        # ── Pull form fields ──────────────────────────────────────────────
-        association   = request.form["association"].strip()
-        number        = request.form["number"].strip()
-        month         = request.form["month"].strip()
-        year          = request.form["year"].strip()
+        # ── Pull fields ───────────────────────────────────────────────────
+        association   = payload["association"].strip()
+        number        = payload["number"].strip()
+        month         = payload["month"].strip()
+        year          = payload["year"].strip()
         date          = f"{year}_{month}"
-        password      = request.form["password"]
-        backup_folder = request.form["backup_folder"].strip()
+        password      = payload["password"]
+        backup_folder = payload["backup_folder"].strip()
 
         log(f"Association: {association} (#{number})  |  Period: {date}")
 
-        # ── Save uploads to a temp directory ─────────────────────────────
-        tmpdir = tempfile.mkdtemp(prefix="budget_proc_")
-        log(f"Working directory: {tmpdir}")
-
-        saved = {}
-        for k in FILE_KEYS:
-            f    = request.files[k]
-            dest = os.path.join(tmpdir, f.filename)
-            f.save(dest)
-            saved[k] = dest
-            log(f"Received {FILE_LABELS[k]}: {f.filename}")
-
-        # ── Verify uploads are non-empty ──────────────────────────────────
-        for k, path in saved.items():
-            if not os.path.exists(path) or os.path.getsize(path) == 0:
-                return fail(f"File upload failed or empty: {FILE_LABELS[k]} ({os.path.basename(path)})")
+        # Build a dict of the original on-disk paths
+        paths = {k: payload[f"path_{k}"].strip() for k in FILE_KEYS}
+        for k, p in paths.items():
+            log(f"Using {FILE_LABELS[k]}: {os.path.basename(p)}")
 
         # ── Load Balance Sheet ────────────────────────────────────────────
         log("Loading Balance Sheet…")
         try:
-            BS = pd.read_excel(saved["balance"], sheet_name="BalanceSheet",
+            BS = pd.read_excel(paths["balance"], sheet_name="BalanceSheet",
                                engine="xlrd", header=None)
         except Exception as e:
-            return fail(f"Could not read Balance Sheet — {e}. "
-                        f"Expected sheet 'BalanceSheet' in file: {os.path.basename(saved['balance'])}")
+            return fail(f"Could not read Balance Sheet — {e}.")
 
         # ── Load Operating Budget ─────────────────────────────────────────
         log("Loading Operating Budget Export…")
         try:
-            OP = (pd.read_excel(saved["operating"], sheet_name="Sheet1",
+            OP = (pd.read_excel(paths["operating"], sheet_name="Sheet1",
                                 engine="openpyxl", header=None)
                     .drop(columns=6))
         except Exception as e:
-            return fail(f"Could not read Operating Budget Export — {e}. "
-                        f"Expected sheet 'Sheet1' in file: {os.path.basename(saved['operating'])}")
+            return fail(f"Could not read Operating Budget Export — {e}.")
 
         # ── Load Reserve Budget ───────────────────────────────────────────
         log("Loading Reserve Budget Export…")
         try:
-            RSV = (pd.read_excel(saved["reserve"], sheet_name="Sheet1",
+            RSV = (pd.read_excel(paths["reserve"], sheet_name="Sheet1",
                                  engine="openpyxl", header=None)
                      .drop(columns=6))
         except Exception as e:
-            return fail(f"Could not read Reserve Budget Export — {e}. "
-                        f"Expected sheet 'Sheet1' in file: {os.path.basename(saved['reserve'])}")
+            return fail(f"Could not read Reserve Budget Export — {e}.")
 
         # ── Load & split Current Year ─────────────────────────────────────
         log("Loading Current Year Income Statement…")
         try:
-            CY = pd.read_excel(saved["cy"], sheet_name="Income Statement",
+            CY = pd.read_excel(paths["cy"], sheet_name="Income Statement",
                                engine="xlrd", header=None)
         except Exception as e:
-            return fail(f"Could not read Current Year Income Statement — {e}. "
-                        f"Expected sheet 'Income Statement' in file: {os.path.basename(saved['cy'])}")
+            return fail(f"Could not read Current Year Income Statement — {e}.")
 
         CY = CY.drop(CY.columns[COLS_TO_DROP], axis=1)
         cy_matches = CY[CY[0] == "Operating Net Total "].index
         if len(cy_matches) == 0:
-            return fail("Current Year Income Statement: could not find the 'Operating Net Total' row. "
-                        "Please check that the correct file was selected.")
+            return fail("Current Year Income Statement: could not find 'Operating Net Total' row.")
         row_cy = cy_matches[0]
         OP_CY  = CY.iloc[0:row_cy + 1]
         RSV_CY = CY.iloc[row_cy:500]
@@ -316,29 +339,26 @@ def process():
         # ── Load & split Prior Year ───────────────────────────────────────
         log("Loading Prior Year Income Statement…")
         try:
-            PY = pd.read_excel(saved["py"], sheet_name="Income Statement",
+            PY = pd.read_excel(paths["py"], sheet_name="Income Statement",
                                engine="xlrd", header=None)
         except Exception as e:
-            return fail(f"Could not read Prior Year Income Statement — {e}. "
-                        f"Expected sheet 'Income Statement' in file: {os.path.basename(saved['py'])}")
+            return fail(f"Could not read Prior Year Income Statement — {e}.")
 
         PY = PY.drop(PY.columns[COLS_TO_DROP], axis=1)
         py_matches = PY[PY[0] == "Operating Net Total "].index
         if len(py_matches) == 0:
-            return fail("Prior Year Income Statement: could not find the 'Operating Net Total' row. "
-                        "Please check that the correct file was selected.")
+            return fail("Prior Year Income Statement: could not find 'Operating Net Total' row.")
         row_py = py_matches[0]
         OP_PY  = PY.iloc[0:row_py + 1]
         RSV_PY = PY.iloc[row_py:500]
 
-        # ── Write into the macro workbook ─────────────────────────────────
+        # ── Write into the macro workbook (in-place on original file) ─────
         log("Opening macro workbook with xlwings…")
         try:
             excel_app = xw.App(visible=False)
-            tgt_wb    = excel_app.books.open(saved["target"])
+            tgt_wb    = excel_app.books.open(paths["target"])
         except Exception as e:
-            return fail(f"Could not open Budget Macro Workbook — {e}. "
-                        f"Ensure the file is a valid .xlsm: {os.path.basename(saved['target'])}")
+            return fail(f"Could not open Budget Macro Workbook — {e}.")
 
         sheet_operations = [
             ("CYBalSheet", "B1", BS.values),
@@ -359,15 +379,13 @@ def process():
                     ws = tgt_wb.sheets[sheet_name]
                 except Exception:
                     raise ValueError(
-                        f"Sheet '{sheet_name}' not found in the Budget Macro Workbook. "
-                        f"Make sure the correct template was selected."
+                        f"Sheet '{sheet_name}' not found in the Budget Macro Workbook."
                     )
                 try:
                     ws.api.Unprotect(Password=password)
                 except Exception:
                     raise ValueError(
-                        f"Incorrect workbook password — could not unprotect sheet '{sheet_name}'. "
-                        f"Please check the password and try again."
+                        f"Incorrect workbook password — could not unprotect sheet '{sheet_name}'."
                     )
                 ws.range(target_cell).value = data_vals
                 ws.api.Protect(Password=password)
@@ -387,6 +405,7 @@ def process():
         mem["last_number"]      = number
         mem["last_month"]       = month
         mem["last_year"]        = year
+        mem["last_file_paths"]  = {k: str(paths[k]) for k in FILE_KEYS}
         save_memory(mem)
 
         # ── Build destination folder ──────────────────────────────────────
@@ -394,42 +413,33 @@ def process():
         try:
             os.makedirs(dest_folder, exist_ok=True)
         except Exception as e:
-            return fail(f"Could not create destination folder '{dest_folder}' — {e}. "
-                        f"Check that the backup location is accessible.")
+            return fail(f"Could not create destination folder '{dest_folder}' — {e}.")
 
-        log(f"Moving files to: {dest_folder}")
+        log(f"Moving & renaming files to: {dest_folder}")
 
         # ── Output file names ─────────────────────────────────────────────
-        macro_name       = f"{association}_{date}_Budget_Copy.xlsm"
-        balance_out      = f"{number}_{association}_Balance_Sheet_{date}.xls"
-        operating_out    = f"{number}_{association}_Budget_Export_OP.xlsx"
-        reserve_out      = f"{number}_{association}_Budget_Export_RSV.xlsx"
-        current_year_out = f"{number}_{association}_Income_Statement_CY.xls"
-        past_year_out    = f"{number}_{association}_Income_Statement_PY.xls"
-
-        # ── Move files into destination — shutil.move handles cross-device ─
         move_map = [
-            (saved["target"],    macro_name),
-            (saved["balance"],   balance_out),
-            (saved["operating"], operating_out),
-            (saved["reserve"],   reserve_out),
-            (saved["cy"],        current_year_out),
-            (saved["py"],        past_year_out),
+            ("target",    f"{association}_{date}_Budget_Copy.xlsm"),
+            ("balance",   f"{number}_{association}_Balance_Sheet_{date}.xls"),
+            ("operating", f"{number}_{association}_Budget_Export_OP.xlsx"),
+            ("reserve",   f"{number}_{association}_Budget_Export_RSV.xlsx"),
+            ("cy",        f"{number}_{association}_Income_Statement_CY.xls"),
+            ("py",        f"{number}_{association}_Income_Statement_PY.xls"),
         ]
 
         output_files = []
-        for src_path, dst_name in move_map:
+        for key, dst_name in move_map:
+            src_path     = paths[key]
             original_name = os.path.basename(src_path)
-            dst_path = os.path.join(dest_folder, dst_name)
+            dst_path     = os.path.join(dest_folder, dst_name)
             try:
-                shutil.move(src_path, dst_path)
-                log(f"Moved → {dst_name}", "success")
+                shutil.move(src_path, dst_path)   # rename + move — no copy step
+                log(f"Moved & renamed → {dst_name}", "success")
                 output_files.append({"src": original_name, "dst": dst_name})
             except Exception as e:
-                return fail(f"Failed to move '{dst_name}' — {e}")
+                return fail(f"Failed to move '{original_name}' → '{dst_name}' — {e}")
 
         log("All files moved successfully.", "success")
-
         return jsonify({"ok": True, "logs": logs,
                         "output_files": output_files, "dest_folder": dest_folder})
 
@@ -438,11 +448,6 @@ def process():
         log(traceback.format_exc(), "error")
         return jsonify({"ok": False, "logs": logs})
 
-    finally:
-        # ── Always delete the temp directory, success or failure ──────────
-        if tmpdir and os.path.exists(tmpdir):
-            shutil.rmtree(tmpdir, ignore_errors=True)
-
 
 def open_browser():
     time.sleep(1.2)
@@ -450,6 +455,5 @@ def open_browser():
 
 
 if __name__ == "__main__":
-    if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
-        threading.Thread(target=open_browser, daemon=True).start()
+    threading.Thread(target=open_browser, daemon=True).start()
     app.run(host="127.0.0.1", port=5000, debug=False, use_reloader=False)
