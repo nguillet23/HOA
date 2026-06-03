@@ -4,32 +4,31 @@
 
 1. Install Python from https://www.python.org/downloads/
    - During install, check **"Add Python to PATH"**
-
-2. Double-click **INSTALL.vbs**
-   - A window will appear briefly while it installs
-   - Click OK when it says "Installation complete!"
-
-That's it. You're ready.
-
 ---
 
-## Every day use
+## Running
+1. Go to the folder where all the files are located
 
-Double-click **"Launch Budget Processor.vbs"**
-   - This is located in the 'Start_Stop_Tools' Folder
+2. Right click anywhere in the folder (You should see an option for 'Open in Terminal') [**Press that**]
 
-Your browser opens automatically with the app.
+3. Once in terminal, type 'python app.py' (It will take some time to run, but eventually a url website for **http://localhost:5000/** will open
 
-## Closing the Project
+4. Input all files and passwords needed and then press run
 
-Double-click **Stop Budget Processor.vbs**
-   - This will stop the python code running. This the project is not closed, the code will continue to run, slowling down your computer. 
+## Closing
 
----
+There are two options
+
+1. In the website, there is a big red button in the top right. Click that and all the confirmations afterwards.
+
+2. Go back to terminal (The weird black screen). Click 'Ctrl' button at the same time as the 'C' button. **{Ctrl + C}**
+
+From there the website/app should close
+
+**IF NOT CLOSED CORRECTLY, IT WILL CONTINUE TO RUN ON YOUR COMPUTER UNTIL THE COMPUTER IS SHUT DOWN**
+
 
 ## Notes
 
 - Microsoft Excel must be installed on this PC (required for xlwings)
 - Python must also be installed (Python is the backend of the project)
-- If you double-click the launcher and nothing happens after ~15 seconds,
-  run INSTALL.vbs again to make sure all packages installed correctly
