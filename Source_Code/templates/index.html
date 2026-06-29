@@ -467,6 +467,12 @@
           <span class="field-error-msg">Year is required (4 digits)</span>
         </div>
 
+        <div class="field" id="field-budget-year">
+          <label>Budget Year <span class="req">*</span></label>
+          <input type="text" id="inp-budget-year" placeholder="e.g. 2025" maxlength="4">
+          <span class="field-error-msg">Budget Year is required (4 digits)</span>
+        </div>
+
         <div class="field" id="field-password">
           <label>Workbook Password <span class="req">*</span></label>
           <input type="password" id="inp-password" placeholder="Enter workbook password">
@@ -852,6 +858,16 @@ function validateAll() {
     document.getElementById('field-year').classList.remove('field-error');
   }
 
+  // Budget Year
+  const budgetYear = document.getElementById('inp-budget-year').value.trim();
+  const budgetYearOk = /^\d{4}$/.test(budgetYear) && parseInt(budgetYear)>=2000 && parseInt(budgetYear)<=2100;
+  if (!budgetYearOk) {
+    document.getElementById('field-budget-year').classList.add('field-error');
+    errors.push({ key:'field-budget-year', msg:'<strong>Budget Year</strong> is missing or invalid (4-digit, 2000–2100)' });
+  } else {
+    document.getElementById('field-budget-year').classList.remove('field-error');
+  }
+
   // Password
   const pw = document.getElementById('inp-password').value;
   if (!pw) {
@@ -944,6 +960,7 @@ async function runProcess() {
     number:        document.getElementById('number-hidden').value.trim(),
     month:         document.getElementById('sel-month').value,
     year:          document.getElementById('inp-year').value.trim(),
+    budget_year:   document.getElementById('inp-budget-year').value.trim(),
     password:      document.getElementById('inp-password').value,
     backup_folder: backupFolder,
   };
@@ -1058,14 +1075,16 @@ async function initPage() {
     data = await res.json();
   } catch(e) {}
 
-  const hasAssoc  = data.last_association && data.last_number;
-  const hasFolder = data.last_backup_folder;
-  const hasPeriod = data.last_month && data.last_year;
+  const hasAssoc      = data.last_association && data.last_number;
+  const hasFolder     = data.last_backup_folder;
+  const hasPeriod     = data.last_month && data.last_year;
+  const hasBudgetYear = data.last_budget_year;
 
-  if (hasAssoc || hasFolder || hasPeriod) {
+  if (hasAssoc || hasFolder || hasPeriod || hasBudgetYear) {
     let parts = [];
     if (hasAssoc)  parts.push(`<span>${data.last_association} (#${data.last_number})</span>`);
     if (hasPeriod) { const m = MONTH_NAMES[data.last_month]||data.last_month; parts.push(`period <span>${m} ${data.last_year}</span>`); }
+    if (hasBudgetYear) parts.push(`budget year <span>${data.last_budget_year}</span>`);
     if (hasFolder) {
       const fp = (data.last_backup_folder||'').replace(/\\/g,'/').split('/');
       parts.push(`backup folder <span>${fp[fp.length-1]||data.last_backup_folder}</span>`);
@@ -1080,6 +1099,10 @@ async function initPage() {
     const now = new Date();
     document.getElementById('sel-month').value = String(now.getMonth()+1).padStart(2,'0');
     document.getElementById('inp-year').value  = now.getFullYear();
+  }
+  if (!restoredData || !restoredData.last_budget_year) {
+    const now = new Date();
+    document.getElementById('inp-budget-year').value = now.getFullYear();
   }
 }
 
@@ -1109,6 +1132,11 @@ function restoreSession() {
     document.getElementById('field-year').classList.remove('field-error');
     flash('field-year');
   }
+  if (d.last_budget_year) {
+    document.getElementById('inp-budget-year').value = d.last_budget_year;
+    document.getElementById('field-budget-year').classList.remove('field-error');
+    flash('field-budget-year');
+  }
   if (d.last_backup_folder) {
     applyFolder(d.last_backup_folder);
   }
@@ -1121,11 +1149,17 @@ function dismissRestore() {
 }
 
 // Live-clear field errors
-['assoc-select','sel-month','inp-year','inp-password'].forEach(id => {
+['assoc-select','sel-month','inp-year','inp-budget-year','inp-password'].forEach(id => {
   const el = document.getElementById(id);
   if (!el) return;
   ['input','change'].forEach(evt => el.addEventListener(evt, () => {
-    const fieldMap = { 'assoc-select':'field-association', 'sel-month':'field-month', 'inp-year':'field-year', 'inp-password':'field-password' };
+    const fieldMap = {
+      'assoc-select':'field-association',
+      'sel-month':'field-month',
+      'inp-year':'field-year',
+      'inp-budget-year':'field-budget-year',
+      'inp-password':'field-password'
+    };
     const fid = fieldMap[id];
     if (fid) {
       document.getElementById(fid).classList.remove('field-error');

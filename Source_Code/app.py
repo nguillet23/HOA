@@ -27,6 +27,7 @@ def load_memory():
         "last_number": "",
         "last_month": "",
         "last_year": "",
+        "last_budget_year": "",
         "last_file_paths": {},
     }
 
@@ -42,6 +43,7 @@ def migrate_memory(data):
     data.setdefault("last_number", "")
     data.setdefault("last_month", "")
     data.setdefault("last_year", "")
+    data.setdefault("last_budget_year", "")
     data.setdefault("last_file_paths", {})
     return data
 
@@ -105,10 +107,13 @@ def get_memory():
 def update_memory():
     data    = migrate_memory(load_memory())
     payload = request.json or {}
-    for key in ("association", "number", "month", "year"):
+    for key in ("association", "number", "month", "year", "budget_year"):
         val = payload.get(key, "").strip()
         if val:
-            data[f"last_{key}"] = val
+            if key == "budget_year":
+                data["last_budget_year"] = val
+            else:
+                data[f"last_{key}"] = val
     save_memory(data)
     return jsonify({"ok": True})
 
@@ -228,6 +233,16 @@ def _validate_request(payload):
     elif not (2000 <= int(year) <= 2100):
         errors.append(f"Year '{year}' is out of the expected range (2000–2100)")
 
+    budget_year = payload.get("budget_year", "").strip()
+    if not budget_year:
+        errors.append("Budget Year is missing")
+    elif not budget_year.isdigit():
+        errors.append("Budget Year must contain digits only")
+    elif len(budget_year) != 4:
+        errors.append(f"Budget Year '{budget_year}' must be exactly 4 digits")
+    elif not (2000 <= int(budget_year) <= 2100):
+        errors.append(f"Budget Year '{budget_year}' is out of the expected range (2000–2100)")
+
     if not payload.get("password", ""):
         errors.append("Workbook Password is missing")
 
@@ -283,11 +298,12 @@ def process():
         number        = payload["number"].strip()
         month         = payload["month"].strip()
         year          = payload["year"].strip()
+        budget_year   = payload["budget_year"].strip()
         date          = f"{year}_{month}"
         password      = payload["password"]
         backup_folder = payload["backup_folder"].strip()
 
-        log(f"Association: {association} (#{number})  |  Period: {date}")
+        log(f"Association: {association} (#{number})  |  Period: {date}  |  Budget Year: {budget_year}")
 
         # Build a dict of the original on-disk paths
         paths = {k: payload[f"path_{k}"].strip() for k in FILE_KEYS}
@@ -352,12 +368,28 @@ def process():
         OP_PY  = PY.iloc[0:row_py + 1]
         RSV_PY = PY.iloc[row_py:500]
 
-        # ── Write into the macro workbook (in-place on original file) ─────
+        # ── Prepare target copy and write into the macro workbook ─────────
+        target_copy_name = f"{budget_year}_{association}_Budget.xlsm"
+        dest_folder = os.path.join(backup_folder, association)
+        try:
+            os.makedirs(dest_folder, exist_ok=True)
+        except Exception as e:
+            return fail(f"Could not create destination folder '{dest_folder}' — {e}.")
+
+        target_copy_path = os.path.join(dest_folder, target_copy_name)
+        log(f"Copying macro workbook to: {target_copy_name}")
+        try:
+            shutil.copy2(paths["target"], target_copy_path)
+        except Exception as e:
+            return fail(f"Could not copy Budget Macro Workbook — {e}.")
+
         log("Opening macro workbook with xlwings…")
         try:
             excel_app = xw.App(visible=False)
-            tgt_wb    = excel_app.books.open(paths["target"])
+            tgt_wb    = excel_app.books.open(target_copy_path)
         except Exception as e:
+            if os.path.exists(target_copy_path):
+                os.remove(target_copy_path)
             return fail(f"Could not open Budget Macro Workbook — {e}.")
 
         sheet_operations = [
@@ -393,6 +425,8 @@ def process():
         except Exception as e:
             tgt_wb.close()
             excel_app.quit()
+            if os.path.exists(target_copy_path):
+                os.remove(target_copy_path)
             return fail(str(e))
 
         tgt_wb.close()
@@ -405,21 +439,18 @@ def process():
         mem["last_number"]      = number
         mem["last_month"]       = month
         mem["last_year"]        = year
+        mem["last_budget_year"] = budget_year
         mem["last_file_paths"]  = {k: str(paths[k]) for k in FILE_KEYS}
         save_memory(mem)
 
-        # ── Build destination folder ──────────────────────────────────────
-        dest_folder = os.path.join(backup_folder, association)
-        try:
-            os.makedirs(dest_folder, exist_ok=True)
-        except Exception as e:
-            return fail(f"Could not create destination folder '{dest_folder}' — {e}.")
-
         log(f"Moving & renaming files to: {dest_folder}")
 
-        # ── Output file names ─────────────────────────────────────────────
+        output_files = [{
+            "src": os.path.basename(paths["target"]),
+            "dst": target_copy_name,
+        }]
+
         move_map = [
-            ("target",    f"{association}_{date}_Budget.xlsm"),
             ("balance",   f"{number}_{association}_Balance_Sheet_{date}.xls"),
             ("operating", f"{number}_{association}_Budget_Export_OP.xlsx"),
             ("reserve",   f"{number}_{association}_Budget_Export_RSV.xlsx"),
@@ -427,11 +458,10 @@ def process():
             ("py",        f"{number}_{association}_Income_Statement_PY.xls"),
         ]
 
-        output_files = []
         for key, dst_name in move_map:
-            src_path     = paths[key]
+            src_path      = paths[key]
             original_name = os.path.basename(src_path)
-            dst_path     = os.path.join(dest_folder, dst_name)
+            dst_path      = os.path.join(dest_folder, dst_name)
             try:
                 shutil.move(src_path, dst_path)   # rename + move — no copy step
                 log(f"Moved & renamed → {dst_name}", "success")
