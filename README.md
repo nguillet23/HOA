@@ -4,31 +4,41 @@
 
 1. Install Python from https://www.python.org/downloads/
    - During install, check **"Add Python to PATH"**
+  
+2. Download Libraries from terminal
+   ```
+   pip install flask pandas xlwings openpyxl
+   ```
+
 ---
 
 ## Running
+
 1. Go to the folder where all the files are located
-
 2. Right click anywhere in the folder (You should see an option for 'Open in Terminal') [**Press that**]
-
-3. Once in terminal, type 'python app.py' (It will take some time to run, but eventually a url website for **http://localhost:5000/** will open
-
+3. Once in terminal, paste and run this command:
+   ```
+   python app.py
+   ```
+   It will take some time to run, but eventually a website for **http://localhost:5000/** will open
 4. Input all files and passwords needed and then press run
 
 ## Closing
 
 There are two options
 
-1. In the website, there is a big red button in the top right. Click that and all the confirmations afterwards.
+**Option 1:** In the website, there is a big red button in the top right. Click that and follow all confirmations.
 
-2. Go back to terminal (The weird black screen). Click 'Ctrl' button at the same time as the 'C' button. **{Ctrl + C}**
+**Option 2:** Go back to terminal (the black window) and run:
+```
+Ctrl + C
+```
 
-From there the website/app should close
+From there the website/app should close.
 
-**IF NOT CLOSED CORRECTLY, IT WILL CONTINUE TO RUN ON YOUR COMPUTER UNTIL THE COMPUTER IS SHUT DOWN**
+⚠️ **IF NOT CLOSED CORRECTLY, IT WILL CONTINUE TO RUN ON YOUR COMPUTER UNTIL THE COMPUTER IS SHUT DOWN**
 
-
-## Notes
+## Requirements
 
 - Microsoft Excel must be installed on this PC (required for xlwings)
-- Python must also be installed (Python is the backend of the project)
+- Python must be installed (Python is the backend of the project)
