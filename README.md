@@ -22,7 +22,7 @@
 
 ## Running
 
-1. Go to the folder where all the files are located
+1. Go to the folder called **Source Code** where all the files are located
 2. Right click anywhere in the folder (You should see an option for 'Open in Terminal') [**Press that**]
 3. Once in terminal, paste and run this command:
    ```
