@@ -5,7 +5,15 @@
 1. Install Python from https://www.python.org/downloads/
    - During install, check **"Add Python to PATH"**
   
-2. Download Libraries from terminal
+2. Verify Python installed correctly (optional but helpful)
+   - Close any open terminal windows
+   - Open a new terminal and run:
+   ```
+   python --version
+   ```
+   You should see a version number like `Python 3.11.0` or higher. If it doesn't work, Python wasn't added to PATH correctly and you'll need to reinstall it.
+
+3. Download Libraries from terminal
    ```
    pip install flask pandas xlwings openpyxl
    ```
