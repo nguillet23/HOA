@@ -14,7 +14,10 @@ import xlwings as xw
 
 import json
 
-MEMORY_FILE = os.path.join(os.path.dirname(__file__), "assoc_memory.json")
+
+# Preferred memory file location: project_root/config/assoc_memory.json
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+MEMORY_FILE = os.path.join(PROJECT_ROOT, 'config', 'assoc_memory.json')
 
 
 def load_memory():
@@ -33,6 +36,7 @@ def load_memory():
 
 
 def save_memory(data):
+    os.makedirs(os.path.dirname(MEMORY_FILE), exist_ok=True)
     with open(MEMORY_FILE, "w") as f:
         json.dump(data, f, indent=2)
 

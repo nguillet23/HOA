@@ -20,6 +20,9 @@
    python -m pip install -r requirement.txt
    ```
    This will automatically install all the required libraries (flask, pandas, xlwings, openpyxl, and any others listed in the file).
+4. Confirm the ____.csv file is in the config folder
+   - This allows the list of associations easily accessible and changeable
+
 
 ---
 
