@@ -16,16 +16,11 @@ from openpyxl import load_workbook
 import json
 
 
-# Preferred memory file location: project_root/config/assoc_memory.json
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-MEMORY_FILE = os.path.join(PROJECT_ROOT, 'config', 'assoc_memory.json')
 CSV_FILE = os.path.join(PROJECT_ROOT, 'config', 'Test.xlsx')
 
 
 def load_memory():
-    if os.path.exists(MEMORY_FILE):
-        with open(MEMORY_FILE, "r") as f:
-            return json.load(f)
     return {
         "last_backup_folder": "",
         "last_association": "",
@@ -38,9 +33,7 @@ def load_memory():
 
 
 def save_memory(data):
-    os.makedirs(os.path.dirname(MEMORY_FILE), exist_ok=True)
-    with open(MEMORY_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+    return None
 
 
 def migrate_memory(data):
