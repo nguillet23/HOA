@@ -363,9 +363,9 @@
     <span style="font-size:9.5px;color:rgba(255,255,255,.35);letter-spacing:.04em;text-transform:uppercase;font-weight:600;">Click when finished</span>
   </div>
 </div>
-
+ 
 <div class="page">
-
+ 
   <!-- ── PAGE HEADER ── -->
   <div class="page-header">
     <div class="page-header-left">
@@ -374,7 +374,7 @@
     </div>
     <div class="step-pill">2 Steps to Complete</div>
   </div>
-
+ 
   <div class="restore-banner" id="restore-banner">
     <div class="restore-banner-icon">🕐</div>
     <div class="restore-banner-text">
@@ -386,7 +386,7 @@
       <button class="restore-btn restore-btn-no" onclick="dismissRestore()">Dismiss</button>
     </div>
   </div>
-
+ 
   <div class="steps-grid">
   <!-- ── STEP 1 ── -->
   <div class="card">
@@ -397,7 +397,7 @@
     </div>
     <div class="card-body">
       <div class="field-grid">
-
+ 
         <div class="field full" id="field-association">
           <label>Association Name <span class="req">*</span></label>
           <select name="association" id="assoc-select" onchange="onAssocChange(this)">
@@ -410,6 +410,7 @@
             <option value="Astoria Residential"          data-num="182120">Astoria Residential</option>
             <option value="Astoria-Master"               data-num="182320">Astoria-Master</option>
             <option value="Atlanta Georgetown"           data-num="195123">Atlanta Georgetown</option>
+            <option value="Bradford"                     data-num="206125">Bradford</option>
             <option value="Brookwood Park COA"           data-num="200125">Brookwood Park COA</option>
             <option value="Citywalk Heights"             data-num="172119">Citywalk Heights</option>
             <option value="Dakota"                       data-num="139116">Dakota</option>
@@ -460,7 +461,7 @@
           <input type="hidden" id="number-hidden">
           <span class="field-error-msg">Please select an association</span>
         </div>
-
+ 
         <div class="field" id="field-month">
           <label>Month <span class="req">*</span></label>
           <select id="sel-month">
@@ -474,25 +475,25 @@
           </select>
           <span class="field-error-msg">Please select a month</span>
         </div>
-
+ 
         <div class="field" id="field-year">
           <label>Year <span class="req">*</span></label>
           <input type="text" id="inp-year" placeholder="e.g. 2025" maxlength="4">
           <span class="field-error-msg">Year is required (4 digits)</span>
         </div>
-
+ 
         <div class="field" id="field-budget-year">
           <label>Budget Year <span class="req">*</span></label>
           <input type="text" id="inp-budget-year" placeholder="e.g. 2025" maxlength="4">
           <span class="field-error-msg">Budget Year is required (4 digits)</span>
         </div>
-
+ 
         <div class="field" id="field-password">
           <label>Workbook Password <span class="req">*</span></label>
           <input type="password" id="inp-password" placeholder="Enter workbook password">
           <span class="field-error-msg">Password is required</span>
         </div>
-
+ 
         <div class="field" id="field-backup">
           <label>Backup Folder <span class="req">*</span></label>
           <div class="folder-picker" id="folder-picker">
@@ -509,11 +510,11 @@
           </div>
           <span class="field-error-msg">Please select a backup folder</span>
         </div>
-
+ 
       </div>
     </div>
   </div>
-
+ 
   <!-- ── STEP 2 ── -->
   <div class="card">
     <div class="card-header">
@@ -523,7 +524,7 @@
     </div>
     <div class="card-body">
       <div class="files-grid" id="files-grid">
-
+ 
         <!-- Macro workbook — spans full width -->
         <div class="file-tile macro-tile" id="tile-target">
           <div class="file-tile-top">
@@ -542,7 +543,7 @@
           </div>
           <div class="file-status" id="status-target">Required · .xlsm</div>
         </div>
-
+ 
         <!-- Balance Sheet -->
         <div class="file-tile" id="tile-balance">
           <div class="file-tile-top">
@@ -561,7 +562,7 @@
           </div>
           <div class="file-status" id="status-balance">Required · .xls / .xlsx</div>
         </div>
-
+ 
         <!-- Operating Budget -->
         <div class="file-tile" id="tile-operating">
           <div class="file-tile-top">
@@ -580,7 +581,7 @@
           </div>
           <div class="file-status" id="status-operating">Required · .xls / .xlsx</div>
         </div>
-
+ 
         <!-- Reserve Budget -->
         <div class="file-tile" id="tile-reserve">
           <div class="file-tile-top">
@@ -599,7 +600,7 @@
           </div>
           <div class="file-status" id="status-reserve">Required · .xls / .xlsx</div>
         </div>
-
+ 
         <!-- Current Year IS -->
         <div class="file-tile" id="tile-cy">
           <div class="file-tile-top">
@@ -618,7 +619,7 @@
           </div>
           <div class="file-status" id="status-cy">Required · .xls / .xlsx</div>
         </div>
-
+ 
         <!-- Prior Year IS -->
         <div class="file-tile" id="tile-py">
           <div class="file-tile-top">
@@ -637,12 +638,12 @@
           </div>
           <div class="file-status" id="status-py">Required · .xls / .xlsx</div>
         </div>
-
+ 
       </div>
     </div>
   </div>
   </div>
-
+ 
   <!-- ── RUN ── -->
   <div class="run-card">
     <div class="validation-banner" id="validation-banner">
@@ -652,7 +653,7 @@
       </div>
       <ul class="validation-error-list" id="validation-error-list"></ul>
     </div>
-
+ 
     <div class="prog-wrap" id="prog-wrap">
       <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
       <div class="prog-label">
@@ -660,13 +661,13 @@
         <span class="prog-pct"   id="prog-pct">0%</span>
       </div>
     </div>
-
+ 
     <button type="button" class="run-btn" id="run-btn" onclick="runProcess()">
       Run Budget Processor
     </button>
     <div class="run-note">Complete all fields and select all files before processing</div>
   </div>
-
+ 
   <!-- ── LOG ── -->
   <div class="log-wrap" id="log-wrap">
     <div class="log-header">
@@ -675,14 +676,14 @@
     </div>
     <div class="log-body" id="log-body"></div>
   </div>
-
+ 
   <!-- ── RESULT ── -->
   <div class="result-block" id="result-block">
     <div class="result-title"  id="result-title"></div>
     <div class="result-folder" id="result-folder"></div>
     <div class="result-files"  id="result-files"></div>
   </div>
-
+ 
   <!-- ── FOOTER ── -->
   <div class="page-footer">
     <div class="footer-logo">
@@ -690,7 +691,7 @@
     </div>
     <div class="footer-text">HomeOwners <span>Advantage</span> &nbsp;·&nbsp; Budget Processing Tool</div>
   </div>
-
+ 
 </div>
 
 <script>
