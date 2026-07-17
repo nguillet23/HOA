@@ -49,9 +49,9 @@
   /* ── TOP BAR ── */
   .topbar {
     background: var(--navy);
-    padding: 0 40px;
+    padding: 0 18px;
     display: flex; align-items: center; justify-content: space-between;
-    height: 64px;
+    height: 60px;
     position: sticky; top: 0; z-index: 100;
     box-shadow: 0 2px 10px rgba(30,58,95,.3);
     border-bottom: 3px solid var(--teal);
@@ -70,11 +70,11 @@
   .topbar-right { font-family:'Open Sans',sans-serif; font-size:11.5px; font-weight:600; color:rgba(255,255,255,.5); letter-spacing:.08em; text-transform:uppercase; }
 
   /* ── PAGE ── */
-  .page { max-width: 960px; margin: 0 auto; padding: 40px 32px 80px; }
+  .page { width: 100%; max-width: 1600px; margin: 0 auto; padding: 28px 16px 60px; }
 
   .page-header {
     display:flex; align-items:flex-end; justify-content:space-between;
-    padding-bottom:20px; margin-bottom:36px;
+    padding-bottom:18px; margin-bottom:28px;
     border-bottom:3px solid var(--navy);
     animation: fadeIn .4s ease both;
   }
@@ -112,16 +112,19 @@
   .restore-btn-no:hover { background:var(--bg); color:var(--navy); }
 
   /* ── CARDS ── */
-  .card { background:var(--white); border:1px solid var(--border); border-radius:8px; margin-bottom:24px; box-shadow:0 2px 8px rgba(30,58,95,.07); overflow:hidden; animation:fadeUp .4s ease both; }
+  .card { background:var(--white); border:1px solid var(--border); border-radius:8px; margin-bottom:20px; box-shadow:0 2px 8px rgba(30,58,95,.07); overflow:hidden; animation:fadeUp .4s ease both; min-width:0; }
   .card:nth-child(3){ animation-delay:.07s }
-  .card-header { display:flex; align-items:center; gap:14px; padding:16px 24px; border-bottom:1px solid var(--border2); background:var(--surface); border-top:3px solid var(--teal); }
+  .card-header { display:flex; align-items:center; gap:12px; padding:12px 18px; border-bottom:1px solid var(--border2); background:var(--surface); border-top:3px solid var(--teal); }
   .card-step-num { width:30px; height:30px; border-radius:50%; background:var(--teal); color:white; font-family:'Montserrat',sans-serif; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 6px rgba(58,155,191,.3); }
+  .steps-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; margin-bottom:18px; width:100%; }
+  @media(max-width:1360px){ .steps-grid { grid-template-columns:1fr; } }
+  .steps-grid > .card { width:100%; }
   .card-header-title { font-family:'Montserrat',sans-serif; font-size:15px; font-weight:700; color:var(--navy); letter-spacing:.01em; }
   .card-header-sub { margin-left:auto; font-size:12px; font-weight:500; color:var(--steel-light); }
-  .card-body { padding:26px 24px; }
+  .card-body { padding:18px 18px; }
 
   /* ── FIELDS ── */
-  .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   @media(max-width:580px){ .field-grid { grid-template-columns:1fr; } }
   .field { display:flex; flex-direction:column; gap:7px; }
   .field.full { grid-column:1 / -1; }
@@ -179,8 +182,15 @@
   .folder-browse-btn svg { width:13px; height:13px; fill:rgba(255,255,255,.85); }
 
   /* ── FILE TILES (new path-picker design) ── */
-  .files-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .files-grid { display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:10px; }
+  @media(max-width:980px){ .files-grid { grid-template-columns:1fr 1fr; } }
   @media(max-width:600px){ .files-grid { grid-template-columns:1fr; } }
+  #tile-target { grid-column: 1 / -1; grid-row: 1; }
+  #tile-balance { grid-column: 1 / 4; grid-row: 2; }
+  #tile-operating { grid-column: 4 / 7; grid-row: 2; }
+  #tile-reserve { grid-column: 1 / 3; grid-row: 3; }
+  #tile-cy { grid-column: 3 / 5; grid-row: 3; }
+  #tile-py { grid-column: 5 / 7; grid-row: 3; }
 
   .file-tile {
     position:relative;
@@ -365,7 +375,6 @@
     <div class="step-pill">2 Steps to Complete</div>
   </div>
 
-  <!-- ── SESSION RESTORE BANNER ── -->
   <div class="restore-banner" id="restore-banner">
     <div class="restore-banner-icon">🕐</div>
     <div class="restore-banner-text">
@@ -378,6 +387,7 @@
     </div>
   </div>
 
+  <div class="steps-grid">
   <!-- ── STEP 1 ── -->
   <div class="card">
     <div class="card-header">
@@ -410,6 +420,8 @@
             <option value="Greystone at Vinings"         data-num="136116">Greystone at Vinings</option>
             <option value="Halten Hall"                  data-num="111112">Halten Hall</option>
             <option value="Lenox Heights"                data-num="145117">Lenox Heights</option>
+            <option value="Leon - Residential COA"       data-num="208125">Leon - Residential COA</option>
+            <option value="Leon - Master COA"            data-num="208225">Leon - Master COA</option>
             <option value="Luxe"                         data-num="183120">Luxe</option>
             <option value="M West"                       data-num="202125">M West</option>
             <option value="Mafair Renaissance"           data-num="115211">Mafair Renaissance</option>
@@ -432,8 +444,10 @@
             <option value="Spire Master"                 data-num="194223">Spire Master</option>
             <option value="Spire Residential"            data-num="194123">Spire Residential</option>
             <option value="The Aramore COA"              data-num="198124">The Aramore COA</option>
+            <option value="The Hadersham Estate COA"     data-num="207125">The Hadersham Estate COA</option>
             <option value="The Variations"               data-num="197124">The Variations</option>
             <option value="The W-45 Allen"               data-num="161118">The W-45 Allen</option>
+            <option value="The Waldort Astoria"          data-num="205125">The Waldort Astoria</option>
             <option value="The Winston"                  data-num="126111">The Winston</option>
             <option value="Twelve Cent Park Master"      data-num="121206">Twelve Cent Park Master</option>
             <option value="Twelve Cent Park Res"         data-num="121106">Twelve Cent Park Res</option>
@@ -626,6 +640,7 @@
 
       </div>
     </div>
+  </div>
   </div>
 
   <!-- ── RUN ── -->

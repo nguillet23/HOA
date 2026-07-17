@@ -2,10 +2,10 @@
   "associations": {
     "Spire Master": "194223"
   },
-  "last_backup_folder": "C:\\Users\\nncg7\\OneDrive - Villanova University\\Documents\\Personal Projects\\Mom Project\\Relearn_and_Deployment\\budget_app",
+  "last_backup_folder": "C:\\Users\\nncg7\\OneDrive - Villanova University\\Documents\\Personal Projects\\Mom Project\\Relearn_and_Deployment",
   "last_association": "Spire Master",
-  "last_month": "03",
-  "last_year": "2025",
+  "last_month": "05",
+  "last_year": "2026",
   "last_number": "194223",
   "last_file_paths": {
     "target": "C:\\Users\\nncg7\\OneDrive - Villanova University\\Documents\\Personal Projects\\Mom Project\\Relearn_and_Deployment\\Budget - Example.xlsm",
@@ -14,5 +14,6 @@
     "reserve": "C:\\Users\\nncg7\\OneDrive - Villanova University\\Documents\\Personal Projects\\Mom Project\\Relearn_and_Deployment\\Ex-Budget Export-RSV.xlsx",
     "cy": "C:\\Users\\nncg7\\OneDrive - Villanova University\\Documents\\Personal Projects\\Mom Project\\Relearn_and_Deployment\\Ex-Income Statement-CY.xls",
     "py": "C:\\Users\\nncg7\\OneDrive - Villanova University\\Documents\\Personal Projects\\Mom Project\\Relearn_and_Deployment\\Ex-Income Statement-PY.xls"
-  }
+  },
+  "last_budget_year": "2026"
 }

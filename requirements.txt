@@ -1,0 +1,7 @@
+Flask
+pandas
+xlwings
+openpyxl
+xlrd
+selenium
+webdriver-manager
