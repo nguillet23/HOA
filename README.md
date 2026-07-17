@@ -14,9 +14,12 @@
    You should see a version number like `Python 3.11.0` or higher. If it doesn't work, Python wasn't added to PATH correctly and you'll need to reinstall it.
 
 3. Download Libraries from terminal
+   - Make sure the `requirements.txt` file is in the same folder as your other project files
+   - Open a terminal in that folder and run:
    ```
-   pip install flask pandas xlwings openpyxl
+   pip install -r requirements.txt
    ```
+   This will automatically install all the required libraries (flask, pandas, xlwings, openpyxl, and any others listed in the file).
 
 ---
 
@@ -50,3 +53,4 @@ From there the website/app should close.
 
 - Microsoft Excel must be installed on this PC (required for xlwings)
 - Python must be installed (Python is the backend of the project)
+- `requirements.txt` file must be included with your project files
