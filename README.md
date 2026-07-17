@@ -17,7 +17,7 @@
    - Make sure the `requirements.txt` file is in the same folder as your other project files
    - Open a terminal in that folder and run:
    ```
-   pip install -r requirements.txt
+   python -m pip install -r requirement.txt
    ```
    This will automatically install all the required libraries (flask, pandas, xlwings, openpyxl, and any others listed in the file).
 
