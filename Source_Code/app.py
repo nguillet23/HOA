@@ -1,17 +1,3 @@
-"""
-Usage
------
-Run the Flask app from the project root with either:
-
-    python -m src.app
-
-or
-
-    python src/app.py
-
-This starts the server at http://127.0.0.1:5000 and opens a browser window.
-"""
-
 import os
 import sys
 import shutil
@@ -30,6 +16,7 @@ from openpyxl import load_workbook
 import json
 
 
+# Run locally with: python Source_Code/app.py
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 CSV_FILE = os.path.join(PROJECT_ROOT, 'config', 'Association Export.xlsx')
 
