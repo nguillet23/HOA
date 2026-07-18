@@ -17,7 +17,7 @@ import json
 
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-CSV_FILE = os.path.join(PROJECT_ROOT, 'config', 'Test.xlsx')
+CSV_FILE = os.path.join(PROJECT_ROOT, 'config', 'Association Export.xlsx')
 
 
 def load_memory():
@@ -215,9 +215,9 @@ def get_associations():
         # Loop through data rows (starting from row 2)
         for row in worksheet.iter_rows(min_row=2, values_only=True):
             associations.append({
-                'value': row[0],      # First column (Association)
-                'label': row[0],      # First column
-                'num': row[1]         # Second column (Code)
+                'value': row[2],      # First column (Association)
+                'label': row[2],      # First column
+                'num': row[0]         # Second column (Code)
             })
     except FileNotFoundError:
         return jsonify({'error': 'Excel file not found'}), 404

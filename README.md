@@ -20,16 +20,10 @@
    python -m pip install -r requirement.txt
    ```
    This will automatically install all the required libraries (flask, pandas, xlwings, openpyxl, and any others listed in the file).
-4. Get the real `Test.xlsx` file from the config folder
+4. Place the `Association Export.xlsx` file in the `config/` directory before running the application.
 
-   The `Test.xlsx` file should contain the list of associations and codes that can be easily updated.
+
    
-   Currently, only `Ex_Test.xlsx` (__example file__) is included to protect real names and codes.
-   - __`Ex_Test.xlsx` is an example file to hide associations and codes. IT DOES NOT WORK!!__
-   
-   To set up the real file, choose one of the following:
-   - **Option A:** Manually add the associations and codes to `Test.xlsx` in the required format
-   - **Option B:** Request the real `Test.xlsx` file from someone with access
 
 
 ---
