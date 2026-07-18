@@ -21,6 +21,11 @@
    ```
    This will automatically install all the required libraries (flask, pandas, xlwings, openpyxl, and any others listed in the file).
 
+4. Add the Association Export file
+   - The `Association Export.xlsx` file is required but not included in the repository (it's in `.gitignore`)
+   - You must manually add this file to the `config/` folder before running the app
+   - Create the `config/` folder if it doesn't exist, then place `Association Export.xlsx` inside it
+
 ---
 
 ## Project Structure
