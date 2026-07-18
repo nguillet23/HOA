@@ -27,13 +27,17 @@
 
 ```
 project/
-├── run.py                 (main entry point)
-├── requirements.txt       (dependencies)
+├── run.py                          (main entry point)
+├── requirements.txt                (dependencies)
 ├── README.md
 ├── src/
 │   ├── __init__.py
-│   ├── routes.py         (all endpoints)
-│   ├── utils.py          (constants & utilities)
+│   ├── routes.py                   (router - imports & registers handlers)
+│   ├── utils.py                    (constants & utilities)
+│   ├── handlers_memory.py          (memory endpoints)
+│   ├── handlers_pickers.py         (file/folder picker endpoints)
+│   ├── handlers_associations.py    (association data endpoints)
+│   ├── handlers_process.py         (main budget processing logic)
 │   ├── templates/
 │   │   └── index.html
 │   └── static/
