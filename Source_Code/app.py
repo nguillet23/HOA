@@ -11,16 +11,16 @@ from tkinter import filedialog
 from flask import Flask, request, jsonify, render_template
 import pandas as pd
 import xlwings as xw
+from openpyxl import load_workbook
 
 import json
 
-MEMORY_FILE = os.path.join(os.path.dirname(__file__), "assoc_memory.json")
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+CSV_FILE = os.path.join(PROJECT_ROOT, 'config', 'Association Export.xlsx')
 
 
 def load_memory():
-    if os.path.exists(MEMORY_FILE):
-        with open(MEMORY_FILE, "r") as f:
-            return json.load(f)
     return {
         "last_backup_folder": "",
         "last_association": "",
@@ -33,8 +33,7 @@ def load_memory():
 
 
 def save_memory(data):
-    with open(MEMORY_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+    return None
 
 
 def migrate_memory(data):
@@ -201,6 +200,36 @@ def shutdown():
     t.daemon = True; t.start()
     return jsonify({"ok": True})
 
+# ── CSV Associations ────────────────────────────────────────────────────────────
+@app.route('/api/associations')
+def get_associations():
+    associations = []
+    
+    try:
+        workbook = load_workbook(CSV_FILE)  # .xlsx file
+        worksheet = workbook.active
+        
+        # Get column headers from first row
+        headers = [cell.value for cell in worksheet[1]]
+        
+        # Loop through data rows (starting from row 2)
+        for row in worksheet.iter_rows(min_row=2, values_only=True):
+            associations.append({
+                'value': row[2],      # First column (Association)
+                'label': row[2],      # First column
+                'num': row[0]         # Second column (Code)
+            })
+    except FileNotFoundError:
+        return jsonify({'error': 'Excel file not found'}), 404
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': str(e)}), 400
+    
+    return jsonify(associations)
+
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204  # Return empty 204 (No Content)
 
 # ── Validation ────────────────────────────────────────────────────────────────
 
@@ -480,7 +509,6 @@ def process():
 
 
 def open_browser():
-    time.sleep(1.2)
     webbrowser.open("http://localhost:5000")
 
 

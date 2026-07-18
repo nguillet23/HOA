@@ -20,6 +20,11 @@
    python -m pip install -r requirement.txt
    ```
    This will automatically install all the required libraries (flask, pandas, xlwings, openpyxl, and any others listed in the file).
+4. Place the `Association Export.xlsx` file in the `config/` directory before running the application.
+
+
+   
+
 
 ---
 

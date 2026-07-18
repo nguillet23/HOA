@@ -402,65 +402,28 @@
           <label>Association Name <span class="req">*</span></label>
           <select name="association" id="assoc-select" onchange="onAssocChange(this)">
             <option value="" disabled selected>Select association…</option>
-            <option value="12 Midtown (TAS)-Master"      data-num="120205">12 Midtown (TAS)-Master</option>
-            <option value="12 Midtown (TAS)-Residential" data-num="120105">12 Midtown (TAS)-Residential</option>
-            <option value="Ansley Above the Park"        data-num="140116">Ansley Above the Park</option>
-            <option value="Arizona Lofts"                data-num="191122">Arizona Lofts</option>
-            <option value="Astoria Office"               data-num="182520">Astoria Office</option>
-            <option value="Astoria Residential"          data-num="182120">Astoria Residential</option>
-            <option value="Astoria-Master"               data-num="182320">Astoria-Master</option>
-            <option value="Atlanta Georgetown"           data-num="195123">Atlanta Georgetown</option>
-            <option value="Bradford"                     data-num="206125">Bradford</option>
-            <option value="Brookwood Park COA"           data-num="200125">Brookwood Park COA</option>
-            <option value="Citywalk Heights"             data-num="172119">Citywalk Heights</option>
-            <option value="Dakota"                       data-num="139116">Dakota</option>
-            <option value="Element COA"                  data-num="196123">Element COA</option>
-            <option value="Em Overlook-Master"           data-num="107111">Em Overlook-Master</option>
-            <option value="Em Overlook-Residential"      data-num="107211">Em Overlook-Residential</option>
-            <option value="Factory Lofts"                data-num="171119">Factory Lofts</option>
-            <option value="Greystone at Vinings"         data-num="136116">Greystone at Vinings</option>
-            <option value="Halten Hall"                  data-num="111112">Halten Hall</option>
-            <option value="Lenox Heights"                data-num="145117">Lenox Heights</option>
-            <option value="Leon - Residential COA"       data-num="208125">Leon - Residential COA</option>
-            <option value="Leon - Master COA"            data-num="208225">Leon - Master COA</option>
-            <option value="Luxe"                         data-num="183120">Luxe</option>
-            <option value="M West"                       data-num="202125">M West</option>
-            <option value="Mafair Renaissance"           data-num="115211">Mafair Renaissance</option>
-            <option value="Manor House"                  data-num="166118">Manor House</option>
-            <option value="Meridian Buckhead (OBL)"      data-num="163118">Meridian Buckhead (OBL)</option>
-            <option value="One Brookhaven"               data-num="141117">One Brookhaven</option>
-            <option value="Park Central"                 data-num="190021">Park Central</option>
-            <option value="Peachtree Battle"             data-num="193123">Peachtree Battle</option>
-            <option value="Peachtree Malone"             data-num="137116">Peachtree Malone</option>
-            <option value="Piedmont Crest"               data-num="201125">Piedmont Crest</option>
-            <option value="Plz Midtown-Master"           data-num="118212">Plz Midtown-Master</option>
-            <option value="Plz Midtown-Residential"      data-num="118108">Plz Midtown-Residential</option>
-            <option value="Ptree Residences"             data-num="138116">Ptree Residences</option>
-            <option value="Realm - Master"               data-num="203225">Realm - Master</option>
-            <option value="Realm - Residential"          data-num="203125">Realm - Residential</option>
-            <option value="Reid House COA"               data-num="199124">Reid House COA</option>
-            <option value="Reynolds Residential"         data-num="174119">Reynolds Residential</option>
-            <option value="ROVL - Retreat at Old Vinings Lake" data-num="192123">ROVL - Retreat at Old Vinings Lake</option>
-            <option value="Somerset Heights"             data-num="170119">Somerset Heights</option>
-            <option value="Spire Master"                 data-num="194223">Spire Master</option>
-            <option value="Spire Residential"            data-num="194123">Spire Residential</option>
-            <option value="The Aramore COA"              data-num="198124">The Aramore COA</option>
-            <option value="The Hadersham Estate COA"     data-num="207125">The Hadersham Estate COA</option>
-            <option value="The Variations"               data-num="197124">The Variations</option>
-            <option value="The W-45 Allen"               data-num="161118">The W-45 Allen</option>
-            <option value="The Waldort Astoria"          data-num="205125">The Waldort Astoria</option>
-            <option value="The Winston"                  data-num="126111">The Winston</option>
-            <option value="Twelve Cent Park Master"      data-num="121206">Twelve Cent Park Master</option>
-            <option value="Twelve Cent Park Res"         data-num="121106">Twelve Cent Park Res</option>
-            <option value="Two West Wesley"              data-num="165118">Two West Wesley</option>
-            <option value="View at Chastain"             data-num="180120">View at Chastain</option>
-            <option value="Villa Sonoma"                 data-num="129115">Villa Sonoma</option>
-            <option value="Vinings View"                 data-num="124109">Vinings View</option>
-            <option value="Wilburn House"                data-num="160118">Wilburn House</option>
           </select>
           <input type="hidden" id="number-hidden">
           <span class="field-error-msg">Please select an association</span>
         </div>
+
+        <script>
+          // Load associations from CSV via Flask endpoint
+          fetch('/api/associations')
+            .then(response => response.json())
+            .then(data => {
+              const dropdown = document.getElementById('assoc-select');
+              
+              data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.value;
+                option.textContent = item.label;
+                option.setAttribute('data-num', item.num);  // Preserve your data-num attribute
+                dropdown.appendChild(option);
+              });
+            })
+            .catch(error => console.error('Error loading associations:', error));
+        </script>
  
         <div class="field" id="field-month">
           <label>Month <span class="req">*</span></label>
