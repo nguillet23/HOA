@@ -80,23 +80,7 @@
           <span class="field-error-msg">Please select an association</span>
         </div>
 
-        <script>
-          // Load associations from CSV via Flask endpoint
-          fetch('/api/associations')
-            .then(response => response.json())
-            .then(data => {
-              const dropdown = document.getElementById('assoc-select');
-              
-              data.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.value;
-                option.textContent = item.label;
-                option.setAttribute('data-num', item.num);  // Preserve your data-num attribute
-                dropdown.appendChild(option);
-              });
-            })
-            .catch(error => console.error('Error loading associations:', error));
-        </script>
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
  
         <div class="field" id="field-month">
           <label>Month <span class="req">*</span></label>

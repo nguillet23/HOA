@@ -138,6 +138,21 @@ function onAssocChange(sel) {
   clearValidationItem('field-association');
 }
 
+fetch('/api/associations')
+.then(response => response.json())
+.then(data => {
+    const dropdown = document.getElementById('assoc-select');
+    
+    data.forEach(item => {
+    const option = document.createElement('option');
+    option.value = item.value;
+    option.textContent = item.label;
+    option.setAttribute('data-num', item.num);  // Preserve your data-num attribute
+    dropdown.appendChild(option);
+    });
+})
+.catch(error => console.error('Error loading associations:', error));
+
 // ── Validation ────────────────────────────────────────────────────────────────
 function clearValidationItem(key) {
   const li = document.getElementById('vli-' + key);
