@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Processor — HomeOwners Advantage</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">
+      <svg viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 4 A9 9 0 0 1 22 13" stroke="rgba(255,255,255,0.5)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M4 13 A9 9 0 0 1 13 4" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <rect x="9" y="11" width="8" height="11" rx="1" fill="white"/>
+        <polygon points="13,5 7,12 19,12" fill="rgba(255,255,255,0.85)"/>
+        <rect x="11.5" y="17" width="3" height="5" rx="0.5" fill="#3a9bbf"/>
+      </svg>
+    </div>
+    <div class="topbar-name">
+      <span class="line1">HomeOwners</span>
+      <span class="line2">Advantage</span>
+    </div>
+  </div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-right">Budget Processing Tool</div>
+  <div style="margin-left:20px;display:flex;flex-direction:column;align-items:center;gap:4px;">
+    <button class="stop-btn" onclick="stopApp()">
+      <svg viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" rx="1"/></svg>
+      Stop App When Done
+    </button>
+    <span style="font-size:9.5px;color:rgba(255,255,255,.35);letter-spacing:.04em;text-transform:uppercase;font-weight:600;">Click when finished</span>
+  </div>
+</div>
+ 
+<div class="page">
+ 
+  <!-- ── PAGE HEADER ── -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>Monthly <span>Budget</span> Processor</h1>
+      <div class="tagline">Select source files directly — they will be renamed and moved to the backup folder</div>
+    </div>
+    <div class="step-pill">2 Steps to Complete</div>
+  </div>
+ 
+  <div class="restore-banner" id="restore-banner">
+    <div class="restore-banner-icon">🕐</div>
+    <div class="restore-banner-text">
+      <div class="restore-banner-title">Restore Last Session?</div>
+      <div class="restore-banner-detail" id="restore-detail">A previous session was found.</div>
+    </div>
+    <div class="restore-actions">
+      <button class="restore-btn restore-btn-yes" onclick="restoreSession()">Restore</button>
+      <button class="restore-btn restore-btn-no" onclick="dismissRestore()">Dismiss</button>
+    </div>
+  </div>
+ 
+  <div class="steps-grid">
+  <!-- ── STEP 1 ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-step-num">1</div>
+      <div class="card-header-title">Association Details</div>
+      <div class="card-header-sub">Required for file naming &amp; backup</div>
+    </div>
+    <div class="card-body">
+      <div class="field-grid">
+ 
+        <div class="field full" id="field-association">
+          <label>Association Name <span class="req">*</span></label>
+          <select name="association" id="assoc-select" onchange="onAssocChange(this)">
+            <option value="" disabled selected>Select association…</option>
+          </select>
+          <input type="hidden" id="number-hidden">
+          <span class="field-error-msg">Please select an association</span>
+        </div>
+
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+ 
+        <div class="field" id="field-month">
+          <label>Month <span class="req">*</span></label>
+          <select id="sel-month">
+            <option value="" disabled selected>Select month</option>
+            <option value="01">January</option><option value="02">February</option>
+            <option value="03">March</option><option value="04">April</option>
+            <option value="05">May</option><option value="06">June</option>
+            <option value="07">July</option><option value="08">August</option>
+            <option value="09">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+          <span class="field-error-msg">Please select a month</span>
+        </div>
+ 
+        <div class="field" id="field-year">
+          <label>Year <span class="req">*</span></label>
+          <input type="text" id="inp-year" placeholder="e.g. 2025" maxlength="4">
+          <span class="field-error-msg">Year is required (4 digits)</span>
+        </div>
+ 
+        <div class="field" id="field-budget-year">
+          <label>Budget Year <span class="req">*</span></label>
+          <input type="text" id="inp-budget-year" placeholder="e.g. 2025" maxlength="4">
+          <span class="field-error-msg">Budget Year is required (4 digits)</span>
+        </div>
+ 
+        <div class="field" id="field-password">
+          <label>Workbook Password <span class="req">*</span></label>
+          <input type="password" id="inp-password" placeholder="Enter workbook password">
+          <span class="field-error-msg">Password is required</span>
+        </div>
+ 
+        <div class="field" id="field-backup">
+          <label>Backup Folder <span class="req">*</span></label>
+          <div class="folder-picker" id="folder-picker">
+            <div class="folder-display">
+              <div class="folder-display-icon">📁</div>
+              <div class="folder-display-text">
+                <div class="folder-display-name placeholder" id="folder-name">No folder selected</div>
+              </div>
+            </div>
+            <button type="button" class="folder-browse-btn" onclick="browseFolder()">
+              <svg viewBox="0 0 16 16"><path d="M1 3a1 1 0 011-1h4l2 2h6a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+              Browse
+            </button>
+          </div>
+          <span class="field-error-msg">Please select a backup folder</span>
+        </div>
+ 
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ── STEP 2 ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-step-num">2</div>
+      <div class="card-header-title">Source Documents</div>
+      <div class="card-header-sub">Click Browse on each tile — files will be renamed &amp; moved, not copied</div>
+    </div>
+    <div class="card-body">
+      <div class="files-grid" id="files-grid">
+ 
+        <!-- Macro workbook — spans full width -->
+        <div class="file-tile macro-tile" id="tile-target">
+          <div class="file-tile-top">
+            <div class="file-icon-wrap">📁</div>
+            <div class="file-labels">
+              <div class="file-title">Budget Macro Workbook</div>
+              <div class="file-desc">Master .xlsm template — data will be written here</div>
+            </div>
+          </div>
+          <div class="file-path-row">
+            <span class="file-path-text placeholder" id="path-display-target">No file selected</span>
+            <button class="file-pick-btn" onclick="pickFile('target')" id="btn-target">
+              <svg viewBox="0 0 16 16"><path d="M1 3a1 1 0 011-1h4l2 2h6a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+              Browse
+            </button>
+          </div>
+          <div class="file-status" id="status-target">Required · .xlsm</div>
+        </div>
+ 
+        <!-- Balance Sheet -->
+        <div class="file-tile" id="tile-balance">
+          <div class="file-tile-top">
+            <div class="file-icon-wrap">📊</div>
+            <div class="file-labels">
+              <div class="file-title">Balance Sheet</div>
+              <div class="file-desc">.xls or .xlsx export</div>
+            </div>
+          </div>
+          <div class="file-path-row">
+            <span class="file-path-text placeholder" id="path-display-balance">No file selected</span>
+            <button class="file-pick-btn" onclick="pickFile('balance')" id="btn-balance">
+              <svg viewBox="0 0 16 16"><path d="M1 3a1 1 0 011-1h4l2 2h6a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+              Browse
+            </button>
+          </div>
+          <div class="file-status" id="status-balance">Required · .xls / .xlsx</div>
+        </div>
+ 
+        <!-- Operating Budget -->
+        <div class="file-tile" id="tile-operating">
+          <div class="file-tile-top">
+            <div class="file-icon-wrap">📋</div>
+            <div class="file-labels">
+              <div class="file-title">Operating Budget Export</div>
+              <div class="file-desc">.xls or .xlsx export</div>
+            </div>
+          </div>
+          <div class="file-path-row">
+            <span class="file-path-text placeholder" id="path-display-operating">No file selected</span>
+            <button class="file-pick-btn" onclick="pickFile('operating')" id="btn-operating">
+              <svg viewBox="0 0 16 16"><path d="M1 3a1 1 0 011-1h4l2 2h6a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+              Browse
+            </button>
+          </div>
+          <div class="file-status" id="status-operating">Required · .xls / .xlsx</div>
+        </div>
+ 
+        <!-- Reserve Budget -->
+        <div class="file-tile" id="tile-reserve">
+          <div class="file-tile-top">
+            <div class="file-icon-wrap">🏦</div>
+            <div class="file-labels">
+              <div class="file-title">Reserve Budget Export</div>
+              <div class="file-desc">.xls or .xlsx export</div>
+            </div>
+          </div>
+          <div class="file-path-row">
+            <span class="file-path-text placeholder" id="path-display-reserve">No file selected</span>
+            <button class="file-pick-btn" onclick="pickFile('reserve')" id="btn-reserve">
+              <svg viewBox="0 0 16 16"><path d="M1 3a1 1 0 011-1h4l2 2h6a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+              Browse
+            </button>
+          </div>
+          <div class="file-status" id="status-reserve">Required · .xls / .xlsx</div>
+        </div>
+ 
+        <!-- Current Year IS -->
+        <div class="file-tile" id="tile-cy">
+          <div class="file-tile-top">
+            <div class="file-icon-wrap">📈</div>
+            <div class="file-labels">
+              <div class="file-title">Current Year Income Statement</div>
+              <div class="file-desc">.xls or .xlsx export</div>
+            </div>
+          </div>
+          <div class="file-path-row">
+            <span class="file-path-text placeholder" id="path-display-cy">No file selected</span>
+            <button class="file-pick-btn" onclick="pickFile('cy')" id="btn-cy">
+              <svg viewBox="0 0 16 16"><path d="M1 3a1 1 0 011-1h4l2 2h6a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+              Browse
+            </button>
+          </div>
+          <div class="file-status" id="status-cy">Required · .xls / .xlsx</div>
+        </div>
+ 
+        <!-- Prior Year IS -->
+        <div class="file-tile" id="tile-py">
+          <div class="file-tile-top">
+            <div class="file-icon-wrap">📉</div>
+            <div class="file-labels">
+              <div class="file-title">Prior Year Income Statement</div>
+              <div class="file-desc">.xls or .xlsx export</div>
+            </div>
+          </div>
+          <div class="file-path-row">
+            <span class="file-path-text placeholder" id="path-display-py">No file selected</span>
+            <button class="file-pick-btn" onclick="pickFile('py')" id="btn-py">
+              <svg viewBox="0 0 16 16"><path d="M1 3a1 1 0 011-1h4l2 2h6a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg>
+              Browse
+            </button>
+          </div>
+          <div class="file-status" id="status-py">Required · .xls / .xlsx</div>
+        </div>
+ 
+      </div>
+    </div>
+  </div>
+  </div>
+ 
+  <!-- ── RUN ── -->
+  <div class="run-card">
+    <div class="validation-banner" id="validation-banner">
+      <div class="validation-banner-header">
+        <svg viewBox="0 0 16 16"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 3.5h1.5v5h-1.5v-5zm0 6h1.5v1.5h-1.5V10.5z"/></svg>
+        <span class="validation-banner-title" id="validation-title">Please fix the following before processing:</span>
+      </div>
+      <ul class="validation-error-list" id="validation-error-list"></ul>
+    </div>
+ 
+    <div class="prog-wrap" id="prog-wrap">
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+      <div class="prog-label">
+        <span class="prog-stage" id="prog-stage">Initializing…</span>
+        <span class="prog-pct"   id="prog-pct">0%</span>
+      </div>
+    </div>
+ 
+    <button type="button" class="run-btn" id="run-btn" onclick="runProcess()">
+      Run Budget Processor
+    </button>
+    <div class="run-note">Complete all fields and select all files before processing</div>
+  </div>
+ 
+  <!-- ── LOG ── -->
+  <div class="log-wrap" id="log-wrap">
+    <div class="log-header">
+      <span class="log-title">Process Log</span>
+      <button class="log-clear" onclick="clearLog()">Clear</button>
+    </div>
+    <div class="log-body" id="log-body"></div>
+  </div>
+ 
+  <!-- ── RESULT ── -->
+  <div class="result-block" id="result-block">
+    <div class="result-title"  id="result-title"></div>
+    <div class="result-folder" id="result-folder"></div>
+    <div class="result-files"  id="result-files"></div>
+  </div>
+ 
+  <!-- ── FOOTER ── -->
+  <div class="page-footer">
+    <div class="footer-logo">
+      <svg viewBox="0 0 16 16"><path d="M8 1L1 5v6l7 4 7-4V5L8 1zm0 1.8l5 2.8-5 2.8-5-2.8 5-2.8zM2 6.6l5 2.8v5.1L2 11.7V6.6zm6 7.9V9.4l5-2.8v5.1L8 14.5z"/></svg>
+    </div>
+    <div class="footer-text">HomeOwners <span>Advantage</span> &nbsp;·&nbsp; Budget Processing Tool</div>
+  </div>
+ 
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -14,34 +14,62 @@
    You should see a version number like `Python 3.11.0` or higher. If it doesn't work, Python wasn't added to PATH correctly and you'll need to reinstall it.
 
 3. Download Libraries from terminal
-   - Make sure the `requirements.txt` file is in the same folder as your other project files
+   - Make sure the `requirements.txt` file is in the same folder as your project files
    - Open a terminal in that folder and run:
    ```
-   python -m pip install -r requirement.txt
+   python -m pip install -r requirements.txt
    ```
    This will automatically install all the required libraries (flask, pandas, xlwings, openpyxl, and any others listed in the file).
-4. Place the `Association Export.xlsx` file in the `config/` directory before running the application.
 
+4. Add the Association Export file
+   - The `Association Export.xlsx` file is required but not included in the repository (it's in `.gitignore`)
+   - You must manually add this file to the `config/` folder before running the app
+   - Create the `config/` folder if it doesn't exist, then place `Association Export.xlsx` inside it
 
-   
+---
 
+## Project Structure
+
+```
+project/
+├── run.py                          (main entry point)
+├── requirements.txt                (dependencies)
+├── README.md
+├── src/
+│   ├── __init__.py
+│   ├── routes.py                   (router - imports & registers handlers)
+│   ├── utils.py                    (constants & utilities)
+│   ├── handlers_memory.py          (memory endpoints)
+│   ├── handlers_pickers.py         (file/folder picker endpoints)
+│   ├── handlers_associations.py    (association data endpoints)
+│   ├── handlers_process.py         (main budget processing logic)
+│   ├── templates/
+│   │   └── index.html
+│   └── static/
+│       ├── style.css
+│       └── script.js
+├── config/
+│   └── Association Export.xlsx
+```
 
 ---
 
 ## Running
 
-1. Go to the folder called **Source Code** where all the files are located
+1. Go to the folder where all the files are located (where `run.py` is)
 2. Right click anywhere in the folder (You should see an option for 'Open in Terminal') [**Press that**]
 3. Once in terminal, paste and run this command:
    ```
-   python app.py
+   python run.py
    ```
-   It will take some time to run, but eventually a website for **http://localhost:5000/** will open
+   It will take some time to run, but eventually a website for **http://localhost:5000/** will open automatically
 4. Input all files and passwords needed and then press run
+
+---
 
 ## Closing
 
-There are two options
+There are two options:
 
 **Option 1:** In the website, there is a big red button in the top right. Click that and follow all confirmations.
 
@@ -54,8 +82,10 @@ From there the website/app should close.
 
 ⚠️ **IF NOT CLOSED CORRECTLY, IT WILL CONTINUE TO RUN ON YOUR COMPUTER UNTIL THE COMPUTER IS SHUT DOWN**
 
+---
+
 ## Requirements
 
 - Microsoft Excel must be installed on this PC (required for xlwings)
-- Python must be installed (Python is the backend of the project)
+- Python 3.11 or higher must be installed (Python is the backend of the project)
 - `requirements.txt` file must be included with your project files
