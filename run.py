@@ -3,10 +3,6 @@ Usage
 -----
 Run the Flask app from the project root with either:
 
-    python -m src.app
-
-or
-
     python run.py
 
 This starts the server at http://127.0.0.1:5000 and opens a browser window.
