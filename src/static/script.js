@@ -17,12 +17,14 @@ const FILE_LABELS = {
 // ── Progress ──────────────────────────────────────────────────────────────────
 const STAGES = [
   ["Preparing…",                          5],
-  ["Reading source files…",              20],
-  ["Processing Balance Sheet…",          35],
-  ["Processing Budget Exports…",         50],
-  ["Processing Income Statements…",      65],
-  ["Writing to workbook…",               80],
-  ["Saving & moving files…",             92],
+  ["Reading source files… (1/3)",        20],
+  ["Reading source files… (2/3)",        40],
+  ["Reading source files… (3/3)",        60],
+  ["Processing Balance Sheet…",          72],
+  ["Processing Budget Exports…",         80],
+  ["Processing Income Statements…",      88],
+  ["Writing to workbook…",               96],
+  ["Saving & moving files…",             99],
   ["Complete",                          100],
 ];
 
@@ -312,12 +314,14 @@ async function runProcess() {
     setProgress(3); await sleep(350);
     setProgress(4); await sleep(350);
     setProgress(5); await sleep(350);
-    setProgress(6);
+    setProgress(6); await sleep(350);
+    setProgress(7); await sleep(350);
+    setProgress(8);
 
     const data = await res.json();
     if (data.logs) data.logs.forEach(l => addLog(l.msg, l.level));
 
-    setProgress(7);
+    setProgress(9);
 
     if (data.ok) {
       document.getElementById('result-title').textContent = '✓ Processing Complete';
@@ -360,7 +364,7 @@ async function runProcess() {
     document.getElementById('result-title').textContent = 'Connection Error';
     document.getElementById('result-folder').innerHTML = 'Could not reach the local server.';
     resultBlock.classList.add('show','fail');
-    setProgress(7);
+    setProgress(8);
   }
 
   hideProgress();
