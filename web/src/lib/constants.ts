@@ -16,6 +16,10 @@ export const FILE_LABELS: Record<FileKey, string> = {
 
 export const FILE_KEYS = Object.keys(FILE_LABELS) as FileKey[];
 
+export const VALID_MONTHS = new Set(
+  Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"))
+);
+
 export const FILE_EXTENSIONS: Record<FileKey, string[]> = {
   target: [".xlsm"],
   balance: [".xls", ".xlsx"],
