@@ -7,10 +7,10 @@ import { useState, type FormEvent, type ReactNode } from "react";
 
 const STORAGE_KEY = "budget-processor:site-unlocked";
 
-// TODO: set via `await sha256Hex("<the chosen passphrase>")` in a console
-// once a real passphrase is picked. Empty = gate disabled (no passphrase
-// configured yet), so phase 4 stays testable without one.
-const PASSPHRASE_HASH = "";
+// SHA-256 of the real passphrase, chosen 2026-09-03 — not stored in plain
+// text so it isn't grep-able in view-source (still trivially readable via
+// devtools by anyone who actually tries; see file header).
+const PASSPHRASE_HASH = "2748ecffcc0a96ea41eb25753c15aa3448776eca1cefff425fc8ad70de1d9bba";
 
 async function sha256Hex(text: string): Promise<string> {
   const data = new TextEncoder().encode(text);
