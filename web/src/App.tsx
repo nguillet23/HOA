@@ -1,26 +1,23 @@
-// Top-level layout, mirrors src/templates/index.html. Wires the phase 2
-// (read/parse) and phase 3 (write) lib functions to the real UI so the
-// pipeline is exercised end to end — packaging the result into a zip
-// download is phase 5, not yet implemented (see the TODO in handleSubmit).
+// Top-level layout, mirrors src/templates/index.html. Wires phases 2-5
+// (read/parse, write, zip + download) to the real UI end to end.
 
 import { useState } from "react";
-import UploadForm, { type Association } from "./components/UploadForm";
+import UploadForm from "./components/UploadForm";
 import ResultsPanel, { type LogEntry, type RunResult } from "./components/ResultsPanel";
 import AccessGate from "./components/AccessGate";
+import AssociationsUpload from "./components/AssociationsUpload";
 import { readWorkbookFromFile, parseAllSheets } from "./lib/readSheets";
 import { writeBudgetWorkbook } from "./lib/writeWorkbook";
+import { buildOutputZip, triggerDownload } from "./lib/zipOutput";
 import type { FormValues } from "./lib/validate";
+import { useAssociations } from "./hooks/useAssociations";
 import "./App.css";
-
-// TODO(phase 4b): wire up once the associations upload/IndexedDB piece is
-// built — see "Associations list" section in LIVE_WEBSITE_PLAN.md. Blocked
-// on confirming whether a second person also maintains this file.
-const ASSOCIATIONS: Association[] = [];
 
 function App() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [result, setResult] = useState<RunResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const associationsState = useAssociations();
 
   function log(msg: string, level: LogEntry["level"] = "info") {
     setLogs((prev) => [...prev, { msg, level }]);
@@ -60,12 +57,34 @@ function App() {
 
       log("Writing to macro workbook…");
       writeBudgetWorkbook(targetWb, parsed, values.password);
-
       log("Workbook updated and protected.", "success");
+
+      log("Packaging output files into a zip…");
+      const { blob, zipFilename, outputFiles } = await buildOutputZip({
+        targetWorkbook: targetWb,
+        targetFileName: values.files.target!.name,
+        sourceFiles: {
+          balance: values.files.balance!,
+          operating: values.files.operating!,
+          reserve: values.files.reserve!,
+          cy: values.files.cy!,
+          py: values.files.py!,
+        },
+        association: values.association,
+        number: values.number,
+        month: values.month,
+        year: values.year,
+        budgetYear: values.budgetYear,
+      });
+
+      triggerDownload(blob, zipFilename);
+      log(`Downloaded ${zipFilename}`, "success");
+
       setResult({
         ok: true,
         title: "✓ Processing Complete",
-        detail: "Workbook updated in memory — packaging/download not yet implemented (phase 5).",
+        detail: `Downloaded as ${zipFilename}`,
+        outputFiles,
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -111,9 +130,17 @@ function App() {
           <div className="step-pill">2 Steps to Complete</div>
         </div>
 
-        <UploadForm associations={ASSOCIATIONS} submitting={submitting} onSubmit={handleSubmit} />
+        <UploadForm associations={associationsState.associations} submitting={submitting} onSubmit={handleSubmit} />
 
         <ResultsPanel logs={logs} result={result} onClearLog={() => setLogs([])} />
+
+        <AssociationsUpload
+          filename={associationsState.filename}
+          uploadedAt={associationsState.uploadedAt}
+          count={associationsState.associations.length}
+          error={associationsState.error}
+          onUpload={associationsState.upload}
+        />
 
         <div className="page-footer">
           <div className="footer-logo">

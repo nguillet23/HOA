@@ -9,6 +9,7 @@ import { useState } from "react";
 import { FILE_EXTENSIONS, FILE_KEYS, FILE_LABELS, type FileKey } from "../lib/constants";
 import { validateForm, type FormValues, type ValidationError } from "../lib/validate";
 import { useMemory } from "../hooks/useMemory";
+import type { Association } from "../lib/associations";
 import FileSlot from "./FileSlot";
 
 const MONTH_NAMES: Record<string, string> = {
@@ -26,11 +27,7 @@ const FILE_TILE_META: Record<FileKey, { icon: string; description: string; wide?
   py: { icon: "📉", description: ".xls or .xlsx export" },
 };
 
-export interface Association {
-  value: string;
-  label: string;
-  num: string;
-}
+export type { Association };
 
 interface UploadFormProps {
   associations: Association[];

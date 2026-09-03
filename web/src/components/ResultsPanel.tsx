@@ -1,8 +1,10 @@
-// Ports the log + result blocks from src/templates/index.html. Kept
-// minimal for phase 4 — the original's per-file src->dst rename table
-// doesn't have a direct equivalent yet, since phase 5 (zipOutput.ts)
-// hasn't defined what "output files" means for a zip download. Extend
-// this once that's built.
+// Ports the log + result blocks from src/templates/index.html. The
+// per-file src->dst list now mirrors the zip contents (phase 5,
+// zipOutput.ts) instead of the original's dest_folder rename table — same
+// `.result-files`/`.rf` markup and CSS, just sourced from `OutputFileEntry`
+// instead of a server response.
+
+import type { OutputFileEntry } from "../lib/zipOutput";
 
 export interface LogEntry {
   msg: string;
@@ -13,6 +15,7 @@ export interface RunResult {
   ok: boolean;
   title: string;
   detail: string;
+  outputFiles?: OutputFileEntry[];
 }
 
 interface ResultsPanelProps {
@@ -46,6 +49,17 @@ export default function ResultsPanel({ logs, result, onClearLog }: ResultsPanelP
         <div className={`result-block show${result.ok ? "" : " fail"}`}>
           <div className="result-title">{result.title}</div>
           <div className="result-folder">{result.detail}</div>
+          {result.outputFiles && result.outputFiles.length > 0 && (
+            <div className="result-files">
+              {result.outputFiles.map((f) => (
+                <div key={f.dst} className="rf">
+                  <span>{f.src}</span>
+                  <span className="arrow">→</span>
+                  <span className="dst">{f.dst}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </>
