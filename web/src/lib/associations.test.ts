@@ -36,6 +36,36 @@ describe("parseAssociationsWorkbook", () => {
     });
   });
 
+  it("finds Code/Nickname by header name, not position", () => {
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.aoa_to_sheet([
+        ["Status", " nickname ", "Association Name", "CODE"],
+        ["Live", "Halten Hall", "Halten Hall Condominium Association, Inc.", "111112"],
+      ]),
+      "Sheet1",
+    );
+    expect(parseAssociationsWorkbook(wb)).toEqual([
+      { value: "Halten Hall", label: "Halten Hall", num: "111112" },
+    ]);
+  });
+
+  it("throws a labeled error naming the missing column and the headers found", () => {
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.aoa_to_sheet([
+        ["Code", "Association Name"],
+        ["111112", "Halten Hall Condominium Association, Inc."],
+      ]),
+      "Sheet1",
+    );
+    expect(() => parseAssociationsWorkbook(wb)).toThrow(
+      "Associations file is missing a 'Nickname' column — found: Code, Association Name",
+    );
+  });
+
   it("throws a labeled error when the sheet has no data rows", () => {
     const empty = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(empty, XLSX.utils.aoa_to_sheet([["Code", "Name", "Nickname"]]), "Sheet1");
