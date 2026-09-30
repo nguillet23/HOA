@@ -1,0 +1,52 @@
+name: Build check
+
+# Builds web/ on every non-main branch push and every PR into main, so a
+# broken build shows up before merging. Never deploys — publishing to
+# GitHub Pages happens only in deploy-pages.yml, which only runs on main.
+#
+# Like deploy-pages.yml, runs `npm run build` (includes the `tsc -b`
+# type-check) and lint, but not `npm test`: the Vitest suite needs the
+# gitignored real sample files in web/test/fixtures/.
+
+on:
+  push:
+    branches-ignore: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Lint
+        working-directory: web
+        run: npm run lint
+
+      - name: Build
+        working-directory: web
+        run: npm run build

@@ -59,4 +59,4 @@ The Vitest suite reads real financial sample files from `web/test/fixtures/` (`b
 
 ## Deployment
 
-`.github/workflows/deploy-pages.yml` builds `web/` and publishes to GitHub Pages when a push to `main` touches `web/**` or the workflow file. It can also be run manually. Work on other branches doesn't go live until it's merged to `main`. Never commit `web/dist/`.
+`.github/workflows/deploy-pages.yml` builds `web/` and publishes to GitHub Pages when a push to `main` touches `web/**` or the workflow file. It can also be run manually. Work on other branches doesn't go live until it's merged to `main`. `.github/workflows/build-check.yml` runs lint and build (no deploy) on pushes to any other branch and on PRs into `main`. Never commit `web/dist/`.

@@ -40,14 +40,22 @@ function openDb(): Promise<IDBDatabase> {
   });
 }
 
+// Header names in the Vantaca export that the dropdown is built from.
+// Located by name rather than position so an added/removed/reordered
+// column in a future export can't silently shift the wrong data into the
+// dropdown. Matched case-insensitively with whitespace trimmed.
+const CODE_HEADER = "Code";
+const NAME_HEADER = "Nickname";
+
+function normalizeHeader(cell: unknown): string {
+  return cell === null || cell === undefined ? "" : String(cell).trim().toLowerCase();
+}
+
 /**
- * Mirrors handlers_associations.py's row -> {value,label,num} mapping:
- * column 0 is the association Code, column 2 is used for both value and
- * label. In the real export file column 2 is actually "Nickname" (column
- * order: Code, Association Name, Nickname, ...) — the Python source's own
- * inline comment calling it "Association" is misleading, but this mirrors
- * its actual indexing (row[0]/row[2]), which is what the live app does
- * today. Row 0 is the header row.
+ * Same {value,label,num} output as handlers_associations.py: "Code" becomes
+ * num, "Nickname" becomes both value and label. The Python version reads
+ * these by position (row[0]/row[2]); this finds them by header name in row 0
+ * instead, and throws a labeled error if either is missing.
  */
 export function parseAssociationsWorkbook(wb: XLSX.WorkBook): Association[] {
   const sheetName = wb.SheetNames[0];
@@ -62,10 +70,27 @@ export function parseAssociationsWorkbook(wb: XLSX.WorkBook): Association[] {
     raw: true,
   }) as unknown[][];
 
+  const headers = (rows[0] ?? []).map(normalizeHeader);
+  const codeCol = headers.indexOf(normalizeHeader(CODE_HEADER));
+  const nameCol = headers.indexOf(normalizeHeader(NAME_HEADER));
+  const missing = [
+    codeCol === -1 ? CODE_HEADER : null,
+    nameCol === -1 ? NAME_HEADER : null,
+  ].filter((h): h is string => h !== null);
+  if (missing.length > 0) {
+    const found = (rows[0] ?? [])
+      .map((h) => (h === null || h === undefined ? "" : String(h).trim()))
+      .filter((h) => h !== "");
+    throw new Error(
+      `Associations file is missing ${missing.map((h) => `a '${h}'`).join(" and ")} column` +
+        ` — found: ${found.length > 0 ? found.join(", ") : "(no headers)"}`,
+    );
+  }
+
   const associations: Association[] = [];
   for (const row of rows.slice(1)) {
-    const num = row[0];
-    const name = row[2];
+    const num = row[codeCol];
+    const name = row[nameCol];
     if (name === null || name === undefined || name === "") continue;
     associations.push({
       value: String(name),
