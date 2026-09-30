@@ -1,0 +1,62 @@
+name: Deploy web/ to GitHub Pages
+
+# Builds the static React/Vite site in web/ and publishes it to GitHub
+# Pages. Only fires on main (see LIVE_WEBSITE_PLAN.md phase 6) so
+# in-progress work on other branches never goes live.
+#
+# Deliberately does NOT run `npm test`: the Vitest suite reads real sample
+# financial files from web/test/fixtures/, which is gitignored (real
+# association/budget data, not meant to be committed) and so doesn't exist
+# in a clean CI checkout. `npm run build` still runs the full `tsc -b`
+# type-check.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Build
+        working-directory: web
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
